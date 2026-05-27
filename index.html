@@ -625,6 +625,34 @@
         flex-direction: column;
       }
     }
+
+    /* =============================================
+       VIDEO LOADER OVERLAY
+    ============================================= */
+    #video-loader {
+      position: absolute;
+      inset: 0;
+      background: var(--color-bg);
+      z-index: 10;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      padding: 0 60px 48px;
+      transition: opacity 0.8s ease;
+      pointer-events: none;
+    }
+
+    #video-loader.hidden {
+      opacity: 0;
+    }
+
+    #video-loader-bar {
+      width: 0%;
+      height: 1px;
+      background: var(--color-gold);
+      transition: width 0.3s ease;
+      max-width: 200px;
+    }
   </style>
 </head>
 <body>
@@ -640,14 +668,20 @@
   ============================================= -->
   <div id="video-scroll-wrapper">
     <div id="video-sticky">
+      <!-- src set via JS so it doesn't block initial page render -->
       <video
         id="hero-video"
-        src="bohopods-story-final.mp4"
         muted
         playsinline
-        preload="auto"
+        preload="none"
+        poster="bohopods-exterior-mountain-sunset-terrace-outdoor-seating.png"
       ></video>
       <div id="video-overlay"></div>
+
+      <!-- Loading overlay — fades out once video can play -->
+      <div id="video-loader">
+        <div id="video-loader-bar"></div>
+      </div>
 
       <!-- Scroll Text Lines -->
       <div class="scroll-text top" id="text-1">
@@ -814,6 +848,8 @@
     const video = document.getElementById('hero-video');
     const wrapper = document.getElementById('video-scroll-wrapper');
     const progressBar = document.getElementById('scroll-progress');
+    const loader = document.getElementById('video-loader');
+    const loaderBar = document.getElementById('video-loader-bar');
 
     const texts = {
       1: { el: document.getElementById('text-1'), fadeIn: 0.08, fadeOut: 0.18 },
@@ -826,12 +862,42 @@
     let videoDuration = 0;
     let targetTime = 0;
     let lastAppliedTime = -1;
-    // Minimum time delta before issuing a new seek (~1 frame at 30fps).
-    // Below this the decoder would fire for no visible change.
     const MIN_SEEK_DELTA = 1 / 30;
 
-    video.addEventListener('loadedmetadata', () => { videoDuration = video.duration; });
-    video.addEventListener('canplay', () => { if (!videoDuration) videoDuration = video.duration; });
+    // Assign src via JS — keeps it out of the HTML parser so the page
+    // renders and becomes interactive before any video bytes are fetched.
+    video.src = 'bohopods-story-final.mp4';
+    video.load();
+
+    // Always keep the video paused — currentTime is the only control.
+    function forceHold() { if (!video.paused) video.pause(); }
+    video.addEventListener('play', forceHold);
+    video.addEventListener('playing', forceHold);
+
+    video.addEventListener('loadedmetadata', () => {
+      videoDuration = video.duration;
+      video.pause();
+    });
+
+    // Animate loader bar using the video's buffered progress
+    video.addEventListener('progress', () => {
+      if (video.buffered.length > 0 && videoDuration > 0) {
+        const pct = (video.buffered.end(video.buffered.length - 1) / videoDuration) * 100;
+        loaderBar.style.width = Math.min(pct, 100) + '%';
+      }
+    });
+
+    // Hide loader once the video can play through without stalling
+    video.addEventListener('canplay', () => {
+      video.pause();
+      if (!videoDuration) videoDuration = video.duration;
+      loaderBar.style.width = '100%';
+      setTimeout(() => {
+        loader.classList.add('hidden');
+        // Remove from DOM after fade so it can't block pointer events
+        setTimeout(() => loader.remove(), 900);
+      }, 200);
+    });
 
     function getScrollProgress() {
       const wrapperRect = wrapper.getBoundingClientRect();
@@ -850,17 +916,11 @@
       return 0;
     }
 
-    // Scroll handler: ONLY updates cheap UI (progress bar + text).
-    // Video seeking is handled separately in the rAF loop below.
+    // Scroll handler: updates progress bar and text only (no decode work).
     function onScroll() {
       const progress = getScrollProgress();
-
-      if (videoDuration > 0) {
-        targetTime = progress * videoDuration;
-      }
-
+      if (videoDuration > 0) targetTime = progress * videoDuration;
       progressBar.style.height = (progress * 100) + '%';
-
       for (const key in texts) {
         const t = texts[key];
         t.el.style.opacity = getTextOpacity(progress, t.fadeIn, t.fadeOut);
@@ -869,9 +929,8 @@
 
     window.addEventListener('scroll', onScroll, { passive: true });
 
-    // Dedicated rAF loop for video seeks — completely decoupled from
-    // scroll event frequency. Only seeks when targetTime has moved by
-    // at least one frame, preventing decoder saturation.
+    // Dedicated rAF loop — seeks only when delta ≥ 1 frame so the
+    // decoder is never saturated by rapid scroll events.
     function videoLoop() {
       if (videoDuration > 0) {
         const delta = Math.abs(targetTime - lastAppliedTime);
