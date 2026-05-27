@@ -626,9 +626,27 @@
       }
     }
 
+    /* Buffer loading bar — gold line at bottom while video downloads */
+    #buffer-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      width: 0%;
+      background: var(--color-gold);
+      z-index: 500;
+      transition: width 0.2s linear, opacity 0.6s ease;
+      pointer-events: none;
+    }
+    #buffer-bar.done {
+      opacity: 0;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Buffer loading bar -->
+  <div id="buffer-bar"></div>
 
   <!-- Custom Cursor -->
   <div id="cursor"></div>
@@ -816,6 +834,7 @@
     const video = document.getElementById('hero-video');
     const wrapper = document.getElementById('video-scroll-wrapper');
     const progressBar = document.getElementById('scroll-progress');
+    const bufferBar = document.getElementById('buffer-bar');
 
     const texts = {
       1: { el: document.getElementById('text-1'), fadeIn: 0.08, fadeOut: 0.18 },
@@ -826,31 +845,44 @@
     };
 
     let videoDuration = 0;
-    let seekPending = false;
+    let targetTime = 0;
+    let lastSeekedTime = -1;
+    const FRAME_DELTA = 1 / 24; // seek only when target differs by ≥1 frame @24fps
 
     function syncDuration() {
       if (video.duration && isFinite(video.duration)) videoDuration = video.duration;
     }
-    ['loadedmetadata', 'durationchange', 'canplay', 'canplaythrough'].forEach(e => {
-      video.addEventListener(e, syncDuration);
+    ['loadedmetadata', 'durationchange', 'canplay', 'canplaythrough'].forEach(ev => {
+      video.addEventListener(ev, syncDuration);
     });
 
-    // iOS Safari ignores preload="auto" and blocks currentTime changes
-    // until play() is called within a user touch gesture. On first touch,
-    // call play() to load/unlock the video, then immediately pause it.
-    // After this, currentTime works normally for scroll-jacking.
+    // Show buffer download progress on the gold bar at the bottom
+    video.addEventListener('progress', () => {
+      if (!video.buffered.length || !videoDuration) return;
+      const pct = (video.buffered.end(video.buffered.length - 1) / videoDuration) * 100;
+      bufferBar.style.width = Math.min(pct, 100) + '%';
+      if (pct >= 99) {
+        bufferBar.classList.add('done');
+      }
+    });
+    video.addEventListener('canplaythrough', () => {
+      bufferBar.style.width = '100%';
+      bufferBar.classList.add('done');
+    });
+
+    // iOS Safari ignores preload="auto" and silently drops currentTime
+    // assignments until play() has been called within a user gesture.
+    // On first touch/click, play() + immediate pause() unlocks seeking.
     let unlocked = false;
     function unlockVideo() {
       if (unlocked) return;
       unlocked = true;
       video.play().then(() => {
         video.pause();
-        // Seek to current scroll position immediately after unlock
         if (videoDuration) video.currentTime = getScrollProgress() * videoDuration;
       }).catch(() => {});
     }
     window.addEventListener('touchstart', unlockVideo, { once: true, passive: true });
-    // Also unlock on mousedown for desktop browsers with autoplay policies
     window.addEventListener('mousedown', unlockVideo, { once: true });
 
     function getScrollProgress() {
@@ -859,36 +891,39 @@
     }
 
     function getTextOpacity(progress, fadeIn, fadeOut) {
-      const dur = 0.04;
+      const d = 0.04;
       if (progress < fadeIn) return 0;
-      if (progress < fadeIn + dur) return (progress - fadeIn) / dur;
+      if (progress < fadeIn + d) return (progress - fadeIn) / d;
       if (progress < fadeOut) return 1;
-      if (progress < fadeOut + dur) return 1 - (progress - fadeOut) / dur;
+      if (progress < fadeOut + d) return 1 - (progress - fadeOut) / d;
       return 0;
     }
 
-    function doSeek() {
-      seekPending = false;
-      syncDuration();
-      if (!videoDuration) return;
-      video.currentTime = Math.max(0, Math.min(videoDuration, getScrollProgress() * videoDuration));
-    }
-
+    // Scroll: update target time + UI (cheap — no decode work here)
     window.addEventListener('scroll', () => {
-      const progress = getScrollProgress();
-
-      // Update text and progress bar — always, even before video loads
-      progressBar.style.height = (progress * 100) + '%';
-      for (const key in texts) {
-        texts[key].el.style.opacity = getTextOpacity(progress, texts[key].fadeIn, texts[key].fadeOut);
-      }
-
-      // Throttle seeks to one per animation frame
-      if (!seekPending) {
-        seekPending = true;
-        requestAnimationFrame(doSeek);
+      const p = getScrollProgress();
+      if (videoDuration) targetTime = p * videoDuration;
+      progressBar.style.height = (p * 100) + '%';
+      for (const k in texts) {
+        texts[k].el.style.opacity = getTextOpacity(p, texts[k].fadeIn, texts[k].fadeOut);
       }
     }, { passive: true });
+
+    // Dedicated rAF loop for seeking.
+    // readyState >= 2 = frame data is in buffer, seek is instant (no network).
+    // FRAME_DELTA throttle = decoder never floods, frames feel intentional.
+    function seekLoop() {
+      syncDuration();
+      if (videoDuration > 0 && video.readyState >= 2) {
+        const delta = Math.abs(targetTime - lastSeekedTime);
+        if (delta >= FRAME_DELTA) {
+          lastSeekedTime = targetTime;
+          video.currentTime = targetTime;
+        }
+      }
+      requestAnimationFrame(seekLoop);
+    }
+    seekLoop();
 
     // ─── IntersectionObserver for Scroll Reveals ──
 
