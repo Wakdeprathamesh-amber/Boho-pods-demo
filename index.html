@@ -646,7 +646,7 @@
         src="bohopods-story-final.mp4"
         muted
         playsinline
-        preload="metadata"
+        preload="auto"
         poster="bohopods-exterior-mountain-sunset-terrace-outdoor-seating.png"
       ></video>
       <div id="video-overlay"></div>
@@ -835,10 +835,16 @@
     // hero until the first scroll seek pulls the needed frames.
     video.addEventListener('loadedmetadata', () => {
       videoDuration = video.duration;
+      // Sync immediately in case user already scrolled before metadata arrived
+      const progress = getScrollProgress();
+      targetTime = progress * videoDuration;
     });
 
     video.addEventListener('canplay', () => {
-      if (!videoDuration && video.duration) videoDuration = video.duration;
+      if (!videoDuration && video.duration) {
+        videoDuration = video.duration;
+        targetTime = getScrollProgress() * videoDuration;
+      }
     });
 
     function getScrollProgress() {
