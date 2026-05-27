@@ -871,12 +871,18 @@
 
     window.addEventListener('scroll', onScroll, { passive: true });
 
-    // Dedicated rAF loop — seeks only when delta ≥ 1 frame so the
-    // decoder is never saturated by rapid scroll events.
+    // Dedicated rAF loop — seeks only when delta ≥ 1 frame.
+    // readyState >= 1 (HAVE_METADATA) is enough: setting currentTime
+    // with metadata available triggers a range request for the needed
+    // frames. Requiring >= 2 deadlocks on Vercel where readyState stays
+    // at 1 until the first seek actually fetches frame data.
     function videoLoop() {
-      if (videoDuration > 0) {
+      // Pick up duration if the loadedmetadata event was missed
+      if (!videoDuration && video.duration) videoDuration = video.duration;
+
+      if (videoDuration > 0 && video.readyState >= 1) {
         const delta = Math.abs(targetTime - lastAppliedTime);
-        if (delta >= MIN_SEEK_DELTA && video.readyState >= 2) {
+        if (delta >= MIN_SEEK_DELTA) {
           lastAppliedTime = targetTime;
           if (typeof video.fastSeek === 'function') {
             video.fastSeek(targetTime);
