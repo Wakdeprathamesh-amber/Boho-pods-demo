@@ -826,33 +826,36 @@
     };
 
     let videoDuration = 0;
-    let targetTime = 0;
-    let lastAppliedTime = -1;
-    const MIN_SEEK_DELTA = 1 / 30;
+    let seekPending = false;
 
-    // preload="metadata" — browser fetches only duration + dimensions on
-    // load (a few KB), never the full file. The poster image covers the
-    // hero until the first scroll seek pulls the needed frames.
-    video.addEventListener('loadedmetadata', () => {
-      videoDuration = video.duration;
-      // Sync immediately in case user already scrolled before metadata arrived
-      const progress = getScrollProgress();
-      targetTime = progress * videoDuration;
+    function syncDuration() {
+      if (video.duration && isFinite(video.duration)) videoDuration = video.duration;
+    }
+    ['loadedmetadata', 'durationchange', 'canplay', 'canplaythrough'].forEach(e => {
+      video.addEventListener(e, syncDuration);
     });
 
-    video.addEventListener('canplay', () => {
-      if (!videoDuration && video.duration) {
-        videoDuration = video.duration;
-        targetTime = getScrollProgress() * videoDuration;
-      }
-    });
+    // iOS Safari ignores preload="auto" and blocks currentTime changes
+    // until play() is called within a user touch gesture. On first touch,
+    // call play() to load/unlock the video, then immediately pause it.
+    // After this, currentTime works normally for scroll-jacking.
+    let unlocked = false;
+    function unlockVideo() {
+      if (unlocked) return;
+      unlocked = true;
+      video.play().then(() => {
+        video.pause();
+        // Seek to current scroll position immediately after unlock
+        if (videoDuration) video.currentTime = getScrollProgress() * videoDuration;
+      }).catch(() => {});
+    }
+    window.addEventListener('touchstart', unlockVideo, { once: true, passive: true });
+    // Also unlock on mousedown for desktop browsers with autoplay policies
+    window.addEventListener('mousedown', unlockVideo, { once: true });
 
     function getScrollProgress() {
-      const wrapperRect = wrapper.getBoundingClientRect();
-      const wrapperHeight = wrapper.offsetHeight;
-      const scrolledPast = -wrapperRect.top;
-      const maxScroll = wrapperHeight - window.innerHeight;
-      return Math.max(0, Math.min(1, scrolledPast / maxScroll));
+      const maxScroll = wrapper.offsetHeight - window.innerHeight;
+      return maxScroll > 0 ? Math.max(0, Math.min(1, window.scrollY / maxScroll)) : 0;
     }
 
     function getTextOpacity(progress, fadeIn, fadeOut) {
@@ -864,42 +867,28 @@
       return 0;
     }
 
-    // Scroll handler: updates progress bar and text only (no decode work).
-    function onScroll() {
+    function doSeek() {
+      seekPending = false;
+      syncDuration();
+      if (!videoDuration) return;
+      video.currentTime = Math.max(0, Math.min(videoDuration, getScrollProgress() * videoDuration));
+    }
+
+    window.addEventListener('scroll', () => {
       const progress = getScrollProgress();
-      if (videoDuration > 0) targetTime = progress * videoDuration;
+
+      // Update text and progress bar — always, even before video loads
       progressBar.style.height = (progress * 100) + '%';
       for (const key in texts) {
-        const t = texts[key];
-        t.el.style.opacity = getTextOpacity(progress, t.fadeIn, t.fadeOut);
+        texts[key].el.style.opacity = getTextOpacity(progress, texts[key].fadeIn, texts[key].fadeOut);
       }
-    }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    // Dedicated rAF loop — seeks only when delta ≥ 1 frame.
-    // readyState >= 1 (HAVE_METADATA) is enough: setting currentTime
-    // with metadata available triggers a range request for the needed
-    // frames. Requiring >= 2 deadlocks on Vercel where readyState stays
-    // at 1 until the first seek actually fetches frame data.
-    function videoLoop() {
-      // Pick up duration if the loadedmetadata event was missed
-      if (!videoDuration && video.duration) videoDuration = video.duration;
-
-      if (videoDuration > 0 && video.readyState >= 1) {
-        const delta = Math.abs(targetTime - lastAppliedTime);
-        if (delta >= MIN_SEEK_DELTA) {
-          lastAppliedTime = targetTime;
-          if (typeof video.fastSeek === 'function') {
-            video.fastSeek(targetTime);
-          } else {
-            video.currentTime = targetTime;
-          }
-        }
+      // Throttle seeks to one per animation frame
+      if (!seekPending) {
+        seekPending = true;
+        requestAnimationFrame(doSeek);
       }
-      requestAnimationFrame(videoLoop);
-    }
-    videoLoop();
+    }, { passive: true });
 
     // ─── IntersectionObserver for Scroll Reveals ──
 
