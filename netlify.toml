@@ -1,0 +1,20 @@
+[build]
+  publish = "."
+
+# Serve all bohopods-* assets from /public without changing URLs in index.html
+[[redirects]]
+  from = "/bohopods-*"
+  to = "/public/bohopods-:splat"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/*.mp4"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Accept-Ranges = "bytes"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
