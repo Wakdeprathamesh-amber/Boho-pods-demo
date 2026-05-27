@@ -3,985 +3,1247 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Boho Pods — Luxury Prefab Glamping</title>
+  <title>Boho Pods — Prefab Luxury Glamping</title>
 
-  <!-- Preconnect -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.23/dist/lenis.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.3.23/dist/lenis.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* =============================================
-       CSS VARIABLES
-    ============================================= */
     :root {
-      --color-bg: #0a0a08;
-      --color-cream: #f5f0e8;
-      --color-gold: #c9a96e;
-      --color-green: #2d4a2d;
-      --color-mist: rgba(245, 240, 232, 0.06);
-      --color-overlay: rgba(10, 10, 8, 0.45);
-      --color-cream-muted: rgba(245, 240, 232, 0.6);
+      --bg: #080806;
+      --cream: #f2ece0;
+      --gold: #c9a96e;
+      --serif: 'Cormorant Garant', serif;
+      --sans: 'DM Sans', sans-serif;
     }
 
-    /* =============================================
-       RESET & BASE
-    ============================================= */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: auto;
-    }
-
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: auto; }
     body {
-      background-color: var(--color-bg);
-      color: var(--color-cream);
-      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--cream);
       overflow-x: hidden;
       cursor: none;
-      opacity: 0;
-      animation: pageFadeIn 0.6s ease forwards;
+      font-family: var(--sans);
     }
 
-    @keyframes pageFadeIn {
-      to { opacity: 1; }
-    }
-
-    img {
-      display: block;
-      max-width: 100%;
-    }
-
-    /* =============================================
-       CUSTOM CURSOR
-    ============================================= */
+    /* ─── CURSOR ─── */
     #cursor {
-      position: fixed;
-      width: 8px;
-      height: 8px;
-      background: var(--color-gold);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
+      position: fixed; width: 8px; height: 8px;
+      background: var(--gold); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      left: -20px; top: -20px;
       transform: translate(-50%, -50%);
-      transition: transform 0.1s ease, left 0.1s ease, top 0.1s ease;
-      mix-blend-mode: normal;
+      will-change: left, top;
+    }
+    #cursor-follower {
+      position: fixed; width: 32px; height: 32px;
+      background: transparent; border: 1px solid var(--gold);
+      border-radius: 50%; pointer-events: none; z-index: 9998;
+      left: -20px; top: -20px;
+      transform: translate(-50%, -50%);
+      transition: width 0.25s, height 0.25s, background 0.25s;
+      will-change: left, top;
+    }
+    body.cursor-hover #cursor { transform: translate(-50%, -50%) scale(0); }
+    body.cursor-hover #cursor-follower {
+      width: 56px; height: 56px;
+      background: rgba(201,169,110,0.18);
     }
 
-    /* =============================================
-       SCROLL PROGRESS BAR
-    ============================================= */
-    #scroll-progress {
-      position: fixed;
-      right: 0;
-      top: 0;
-      width: 2px;
-      height: 0%;
-      background: var(--color-gold);
-      z-index: 1000;
-      transition: height 0.05s linear;
+    /* ─── LOADER ─── */
+    #loader {
+      position: fixed; inset: 0;
+      background: var(--bg); z-index: 10000;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+    }
+    #loader-text {
+      font-family: var(--serif); font-size: 18px;
+      letter-spacing: 8px; color: var(--gold); opacity: 0;
+    }
+    #loader-line { width: 0; height: 1px; background: var(--gold); }
+
+    /* ─── PROGRESS BAR ─── */
+    #progress-bar {
+      position: fixed; right: 0; top: 0;
+      width: 2px; height: 100%; z-index: 500;
+      background: rgba(201,169,110,0.08);
+    }
+    #progress-fill {
+      width: 100%; height: 100%;
+      background: var(--gold); transform: scaleY(0);
+      transform-origin: top center;
     }
 
-    /* =============================================
-       SECTION 1 — SCROLL-JACKED VIDEO HERO
-    ============================================= */
-    #video-scroll-wrapper {
-      height: 400vh;
+    /* ─── HERO ─── */
+    #hero-wrapper { height: 600vh; position: relative; }
+    #hero-sticky {
+      position: sticky; top: 0; height: 100vh; overflow: hidden;
+    }
+    #hero-video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    #hero-overlay {
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to bottom,
+        rgba(8,8,6,0.3) 0%, transparent 40%,
+        transparent 60%, rgba(8,8,6,0.8) 100%);
+    }
+
+    /* Hero phases — all absolutely inside #hero-sticky */
+    .hero-phase {
+      position: absolute; z-index: 2;
+      bottom: 15%; left: 8%; max-width: 700px;
+      opacity: 0; pointer-events: none;
+    }
+    #phase3 {
+      left: 50%; bottom: auto; top: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center; max-width: none;
+    }
+    .hl {
+      display: block;
+      font-family: var(--serif);
+      line-height: 0.97;
+    }
+    .hl-cream { color: var(--cream); }
+    .hl-gold  { color: var(--gold); }
+
+    #hero-explore {
+      position: absolute; bottom: 15%; left: 50%;
+      transform: translateX(-50%); z-index: 2;
+      opacity: 0; font-family: var(--sans);
+      font-size: 13px; letter-spacing: 3px; color: var(--gold);
+      white-space: nowrap;
+    }
+    #scroll-indicator {
+      position: absolute; bottom: 40px; left: 50%;
+      transform: translateX(-50%); z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 8px;
+    }
+    #scroll-indicator span {
+      font-family: var(--sans); font-size: 10px;
+      letter-spacing: 4px; color: var(--gold);
+    }
+    #scroll-line {
+      width: 1px; height: 40px;
+      background: rgba(201,169,110,0.3);
+      position: relative; overflow: hidden;
+    }
+    #scroll-dot {
+      position: absolute; top: 0; left: 0;
+      width: 1px; height: 6px; background: var(--gold);
+    }
+
+    /* ─── GALLERY ─── */
+    #gallery-wrapper { height: 400vh; position: relative; }
+    #gallery-sticky {
+      position: sticky; top: 0; height: 100vh;
+      overflow: hidden; display: flex; align-items: center;
+    }
+    #gallery-label {
+      position: absolute; left: 2vw; top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      font-family: var(--sans); font-size: 11px;
+      letter-spacing: 4px; color: var(--gold);
+      z-index: 5; white-space: nowrap;
+    }
+    #gallery-track {
+      display: flex; gap: 3vw;
+      padding: 0 8vw; width: fit-content;
+      will-change: transform;
+    }
+    .gallery-card {
+      width: 420px; height: 580px;
+      overflow: hidden; border-radius: 2px;
+      position: relative; flex-shrink: 0;
+      border: 1px solid rgba(201,169,110,0.12);
+      background: #0f0f0d; cursor: none;
+    }
+    .card-image-wrap { height: 75%; overflow: hidden; }
+    .card-image {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block; transform: scale(1.08);
+      transition: transform 0.8s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .gallery-card:hover .card-image { transform: scale(1); }
+    .card-body {
+      padding: 24px; height: 25%;
+      display: flex; flex-direction: column;
+      justify-content: space-between; position: relative;
+    }
+    .card-tag {
+      font-family: var(--sans); font-size: 10px;
+      letter-spacing: 3px; color: var(--gold); text-transform: uppercase;
+    }
+    .card-title {
+      font-family: var(--serif); font-size: 26px;
+      color: var(--cream); line-height: 1.1; margin-top: 6px;
+    }
+    .card-desc {
+      font-family: var(--sans); font-size: 13px;
+      color: rgba(242,236,224,0.5); line-height: 1.6; margin-top: 4px;
+    }
+    .card-arrow {
+      position: absolute; bottom: 24px; right: 24px;
+      font-size: 18px; color: var(--gold);
+      transition: transform 0.3s ease;
+    }
+    .gallery-card:hover .card-arrow { transform: translate(4px,-4px); }
+
+    /* ─── S3 · VIDEO SCROLL PIN ─── */
+    #arch-section-wrapper {
+      height: 500vh;
       position: relative;
+      background: #050504;
     }
-
-    #video-sticky {
+    #arch-sticky-inner {
       position: sticky;
       top: 0;
       height: 100vh;
-      width: 100%;
-      overflow: hidden;
-    }
-
-    #hero-video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      pointer-events: none;
-      will-change: transform;
-      transform: translateZ(0);
-    }
-
-    #video-overlay {
-      position: absolute;
-      inset: 0;
-      background: var(--color-overlay);
-      pointer-events: none;
-    }
-
-    /* Scroll text lines */
-    .scroll-text {
-      position: absolute;
-      left: 60px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.6s ease;
-    }
-
-    .scroll-text.top {
-      top: 80px;
-    }
-
-    .scroll-text.bottom {
-      bottom: 100px;
-    }
-
-    .scroll-text h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 400;
-      color: var(--color-cream);
-      line-height: 1.15;
-    }
-
-    .scroll-text h2.italic {
-      font-style: italic;
-    }
-
-    .scroll-text h2.gold {
-      color: var(--color-gold);
-    }
-
-    #text-1 { font-size: clamp(36px, 5vw, 64px); top: 80px; }
-    #text-2 { font-size: clamp(32px, 4.5vw, 64px); top: 80px; }
-    #text-3 { font-size: clamp(40px, 6vw, 80px); bottom: 100px; }
-    #text-4 { font-size: clamp(32px, 4.5vw, 64px); bottom: 100px; }
-    #text-5 { font-size: clamp(48px, 7vw, 96px); bottom: 80px; }
-
-    /* =============================================
-       SECTION 2 — ISOMETRIC REVEAL
-    ============================================= */
-    #section-isometric {
-      background: var(--color-bg);
-      padding: 120px 80px;
       display: flex;
       align-items: center;
-      gap: 80px;
-    }
-
-    .iso-left {
-      flex: 1;
-      max-width: 50%;
-    }
-
-    .iso-left h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(42px, 5vw, 72px);
-      font-weight: 600;
-      color: var(--color-cream);
-      line-height: 1.1;
-      margin-bottom: 24px;
-    }
-
-    .iso-left p {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 18px;
-      color: var(--color-cream-muted);
-      max-width: 480px;
-      line-height: 1.8;
-      margin-bottom: 40px;
-    }
-
-    .stat-pills {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .stat-pill {
-      border: 1px solid var(--color-gold);
-      padding: 10px 24px;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 16px;
-      color: var(--color-gold);
-      background: transparent;
-      letter-spacing: 0.5px;
-    }
-
-    .iso-right {
-      flex: 1;
-      max-width: 50%;
-      opacity: 0;
-      transform: translateX(60px);
-      transition: opacity 0.9s ease, transform 0.9s ease;
-    }
-
-    .iso-right.revealed {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .iso-right img {
-      width: 100%;
-      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
-    }
-
-    /* =============================================
-       SECTION 3 — POD GALLERY
-    ============================================= */
-    #section-gallery {
-      background: var(--color-bg);
-      padding: 100px 80px;
-    }
-
-    .gallery-header {
-      text-align: center;
-      margin-bottom: 64px;
-    }
-
-    .gallery-header h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(36px, 5vw, 64px);
-      font-weight: 600;
-      color: var(--color-cream);
-      margin-bottom: 16px;
-    }
-
-    .gallery-header p {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 18px;
-      color: var(--color-cream-muted);
-    }
-
-    .cards-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-    }
-
-    .pod-card {
-      background: #111110;
-      border: 1px solid rgba(201, 169, 110, 0.2);
-      border-radius: 4px;
+      padding: 0 8vw;
       overflow: hidden;
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
+      background: #050504;
     }
-
-    .pod-card.revealed {
-      opacity: 1;
-      transform: translateY(0);
+    .iso-left {
+      width: 42%;
+      flex-shrink: 0;
+      position: relative;
+      height: 380px;
+      z-index: 2;
     }
-
-    .pod-card img {
-      width: 100%;
-      height: 280px;
-      object-fit: cover;
+    #iso-video-container {
+      position: absolute;
+      right: 0; top: 0;
+      width: 58%; height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      pointer-events: none;
+    }
+    #iso-video {
+      width: 100%; height: 100%;
+      object-fit: contain;
       display: block;
     }
-
-    .pod-card-body {
-      padding: 32px;
+    .iso-phase {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      pointer-events: none;
+    }
+    #iso-phase-0 { opacity: 1; pointer-events: auto; }
+    #iso-phase-1, #iso-phase-2 { opacity: 0; }
+    .iso-eyebrow {
+      font-family: var(--sans); font-size: 11px;
+      letter-spacing: 4px; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 24px; display: block;
+    }
+    .iso-h {
+      display: block; font-family: var(--serif);
+      font-style: italic; line-height: 1.0;
+    }
+    .iso-h.cream { color: var(--cream); }
+    .iso-h.gold  { color: var(--gold); }
+    .iso-h-a { font-size: 68px; margin-bottom: 2px; }
+    .iso-h-b { font-size: 72px; }
+    .iso-body-text {
+      font-family: var(--sans); font-size: 16px;
+      color: rgba(242,236,224,0.6); max-width: 420px;
+      line-height: 1.9; margin-top: 20px; margin-bottom: 40px;
+    }
+    .stat-pills { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 32px; }
+    .stat-pill {
+      border: 1px solid var(--gold); padding: 10px 28px;
+      font-family: var(--sans); font-size: 13px;
+      color: var(--gold); letter-spacing: 1px;
     }
 
-    .pod-card-body h3 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 28px;
-      font-weight: 600;
-      color: var(--color-gold);
-      margin-bottom: 12px;
+    /* ─── PARALLAX PANELS ─── */
+    .par-panel {
+      position: relative; height: 100vh;
+      overflow: hidden; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .par-bg {
+      position: absolute; inset: -25% 0;
+      background-size: cover; background-position: center;
+      will-change: transform;
+    }
+    .par-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(rgba(8,8,6,0.15), rgba(8,8,6,0.6));
+    }
+    .par-text {
+      position: relative; z-index: 2;
+      font-family: var(--serif); font-style: italic;
+      font-size: 96px; color: var(--cream);
+      text-align: center; line-height: 1.0;
+      padding: 0 5vw;
     }
 
-    .pod-card-body p {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      color: var(--color-cream-muted);
-      line-height: 1.7;
-      margin-bottom: 24px;
+    /* ─── ADD-ONS ─── */
+    #addons {
+      padding: 80px 8vw;
+      background: var(--bg);
     }
-
-    .pod-cta {
-      display: inline-block;
-      border: 1px solid var(--color-gold);
-      color: var(--color-gold);
-      background: transparent;
-      padding: 12px 28px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      cursor: pointer;
-      transition: background 0.3s ease, color 0.3s ease;
-      text-decoration: none;
-    }
-
-    .pod-cta:hover {
-      background: var(--color-gold);
-      color: var(--color-bg);
-    }
-
-    /* =============================================
-       SECTION 4 — ADD-ONS STRIP
-    ============================================= */
-    #section-addons {
-      background: #0f0f0d;
-      padding: 80px;
-    }
-
-    .addons-heading {
-      text-align: center;
-      margin-bottom: 60px;
-    }
-
-    .addons-heading h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(32px, 4vw, 52px);
-      font-weight: 600;
-      color: var(--color-cream);
-    }
-
-    .addons-row {
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      max-width: 1100px;
+    .addons-inner {
+      max-width: 1400px;
       margin: 0 auto;
     }
 
-    .addon-item {
-      flex: 1;
-      text-align: center;
-      padding: 0 40px;
-      position: relative;
-    }
-
-    .addon-item + .addon-item::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 10%;
-      height: 80%;
-      width: 1px;
-      background: var(--color-gold);
-      opacity: 0.4;
-    }
-
-    .addon-icon {
-      font-size: 48px;
-      line-height: 1;
-      margin-bottom: 16px;
-    }
-
-    .addon-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--color-gold);
-      margin-bottom: 8px;
-    }
-
-    .addon-desc {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      color: var(--color-cream-muted);
-      line-height: 1.6;
-    }
-
-    /* =============================================
-       SECTION 5 — INQUIRY FORM
-    ============================================= */
-    #section-form {
-      background: #0d1a0d;
-      padding: 120px 80px;
+    /* heading row */
+    .addons-header {
       display: flex;
-      align-items: flex-start;
-      gap: 80px;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 48px;
     }
-
-    .form-left {
-      flex: 1;
-      max-width: 45%;
-    }
-
-    .form-left h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(36px, 4.5vw, 64px);
-      font-weight: 600;
-      color: var(--color-cream);
-      line-height: 1.1;
-      margin-bottom: 24px;
-    }
-
-    .form-left p {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 18px;
-      color: var(--color-cream-muted);
-      max-width: 420px;
-      line-height: 1.8;
-    }
-
-    .form-right {
-      flex: 1;
-    }
-
-    .form-group {
-      margin-bottom: 40px;
-      position: relative;
-    }
-
-    .form-group label {
+    .addons-header-left { max-width: 400px; }
+    .addons-label {
+      font-family: var(--sans); font-size: 10px;
+      letter-spacing: 4px; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 16px;
       display: block;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
-      color: var(--color-cream-muted);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 10px;
+    }
+    .addons-heading {
+      font-family: var(--serif); font-style: italic;
+      font-size: 56px; color: var(--cream);
+      font-weight: 300; line-height: 1.0;
+    }
+    .addons-header-right {
+      font-family: var(--sans); font-size: 14px;
+      color: rgba(242,236,224,0.5); max-width: 280px;
+      line-height: 1.7; text-align: right;
     }
 
-    .form-group input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid rgba(245, 240, 232, 0.25);
-      padding: 12px 0;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 16px;
-      color: var(--color-cream);
-      outline: none;
-      transition: border-color 0.3s ease;
+    /* rows */
+    .addons-row {
+      display: flex; gap: 12px;
+    }
+    .addons-row + .addons-row { margin-top: 12px; }
+
+    /* base card */
+    .ac {
+      position: relative; overflow: hidden;
+      border-radius: 0; cursor: none; flex-shrink: 0;
+    }
+    .ac-img {
+      width: 100%; height: 100%; display: block;
+      object-fit: cover;
+      transform: scale(1.0);
+      transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
+    }
+    .ac:hover .ac-img { transform: scale(1.06); }
+    .ac-overlay {
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(
+        to top,
+        rgba(8,8,6,0.88) 0%,
+        rgba(8,8,6,0.3)  45%,
+        transparent      100%
+      );
+    }
+    .ac-body {
+      position: absolute; bottom: 0; left: 0;
+      padding: 24px 28px; z-index: 2; width: 100%;
+    }
+    .ac-num {
+      font-family: var(--sans); font-size: 10px;
+      letter-spacing: 4px; color: rgba(201,169,110,0.7);
+      display: block; margin-bottom: 8px;
+    }
+    .ac-name {
+      font-family: var(--serif); font-size: 32px;
+      font-weight: 300; color: var(--cream); line-height: 1.0;
+    }
+    /* row-2 image cards get smaller name */
+    #addon-3 .ac-name, #addon-4 .ac-name { font-size: 26px; }
+    .ac-desc {
+      font-family: var(--sans); font-size: 12px;
+      color: rgba(242,236,224,0.55); line-height: 1.6;
+      margin-top: 8px;
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+    }
+    .ac:hover .ac-desc {
+      opacity: 1; transform: translateY(0);
     }
 
-    .form-group input::placeholder {
-      color: rgba(245, 240, 232, 0.25);
+    /* specific card widths */
+    #addon-1 { flex: 38; height: 340px; }
+    #addon-2 { flex: 60; height: 340px; }
+    #addon-3 { flex: 30; height: 280px; }
+    #addon-quote { flex: 36; height: 280px; }
+    #addon-4 { flex: 30; height: 280px; }
+
+    /* center quote card */
+    #addon-quote {
+      background: rgba(201,169,110,0.05);
+      border: 1px solid rgba(201,169,110,0.12);
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px 32px;
+    }
+    .ac-quote-inner { text-align: center; }
+    .ac-quote-line {
+      width: 40px; height: 1px; background: var(--gold);
+      margin: 0 auto;
+    }
+    .ac-quote-line + * { margin-top: 24px; }
+    .ac-quote-text {
+      font-family: var(--serif); font-style: italic;
+      font-size: 22px; color: var(--cream); line-height: 1.65;
+      margin-top: 24px;
+    }
+    .ac-quote-line-b { margin-top: 24px; }
+
+    /* floating cursor label */
+    #cursor-label {
+      position: fixed; pointer-events: none; z-index: 9997;
+      font-family: var(--sans); font-size: 10px;
+      letter-spacing: 3px; color: var(--gold);
+      background: rgba(8,8,6,0.85);
+      border: 1px solid rgba(201,169,110,0.3);
+      padding: 10px 18px; border-radius: 2px;
+      white-space: nowrap;
+      transform: scale(0.8); opacity: 0;
+      will-change: left, top;
     }
 
-    .form-group input:focus {
-      border-bottom-color: var(--color-gold);
-    }
-
-    .form-submit {
-      width: 100%;
-      background: var(--color-gold);
-      color: var(--color-bg);
-      border: none;
-      padding: 18px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      cursor: pointer;
-      transition: opacity 0.3s ease;
-      margin-bottom: 24px;
-    }
-
-    .form-submit:hover {
-      opacity: 0.88;
-    }
-
-    .whatsapp-link {
-      display: block;
-      text-align: center;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      color: var(--color-gold);
-      text-decoration: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .whatsapp-link:hover {
-      opacity: 0.7;
-    }
-
-    .form-success {
-      display: none;
-      text-align: center;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 16px;
-      color: var(--color-cream);
-      padding: 24px 0;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-
-    .form-success.visible {
-      display: block;
-      opacity: 1;
-    }
-
-    /* =============================================
-       FOOTER
-    ============================================= */
-    footer {
-      background: var(--color-bg);
-      border-top: 1px solid rgba(245, 240, 232, 0.08);
-      padding: 40px;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    footer span {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      color: var(--color-cream-muted);
-      letter-spacing: 1px;
-    }
-
-    footer a {
-      color: var(--color-cream-muted);
-      text-decoration: none;
-      transition: color 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    footer a:hover {
-      color: var(--color-gold);
-    }
-
-    .footer-ig-icon {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    /* =============================================
-       MOBILE RESPONSIVE
-    ============================================= */
     @media (max-width: 900px) {
-      .scroll-text {
-        left: 24px;
-        right: 24px;
-      }
-
-      #text-3, #text-4, #text-5 {
-        bottom: 60px;
-      }
-
-      #section-isometric {
-        flex-direction: column;
-        padding: 80px 32px;
-        gap: 48px;
-      }
-
-      .iso-left, .iso-right {
-        max-width: 100%;
-        width: 100%;
-      }
-
-      #section-gallery {
-        padding: 80px 24px;
-      }
-
-      .cards-row {
-        grid-template-columns: 1fr;
-      }
-
-      #section-addons {
-        padding: 60px 24px;
-      }
-
-      .addons-row {
-        flex-direction: column;
-        gap: 40px;
-      }
-
-      .addon-item + .addon-item::before {
-        display: none;
-      }
-
-      #section-form {
-        flex-direction: column;
-        padding: 80px 32px;
-        gap: 48px;
-      }
-
-      .form-left {
-        max-width: 100%;
-      }
-
-      footer {
-        flex-direction: column;
-        gap: 12px;
-        padding: 32px 24px;
-      }
+      .addons-header { flex-direction: column; align-items: flex-start; gap: 24px; }
+      .addons-header-right { text-align: left; }
+      .addons-row { flex-wrap: wrap; }
+      .ac { flex: 1 1 100% !important; height: 260px !important; }
+      #addon-quote { flex: 1 1 100% !important; height: auto !important; padding: 48px 32px; }
     }
 
-    @media (max-width: 600px) {
-      #video-scroll-wrapper {
-        height: 300vh;
-      }
-
-      .stat-pills {
-        flex-direction: column;
-      }
+    /* ─── INQUIRY ─── */
+    #inquiry {
+      background: radial-gradient(ellipse at 30% 50%, #0d1f0d 0%, #080806 70%);
+      padding: 140px 8vw;
+      display: grid; grid-template-columns: 45fr 55fr;
+      gap: 8vw; align-items: center;
     }
-
-    /* Buffer loading bar — gold line at bottom while video downloads */
-    #buffer-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      height: 2px;
-      width: 0%;
-      background: var(--color-gold);
-      z-index: 500;
-      transition: width 0.2s linear, opacity 0.6s ease;
-      pointer-events: none;
+    .inq-eyebrow {
+      font-family: var(--sans); font-size: 11px;
+      letter-spacing: 4px; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 32px;
     }
-    #buffer-bar.done {
-      opacity: 0;
+    .inq-heading {
+      font-family: var(--serif); font-size: 72px;
+      font-weight: 300; font-style: italic;
+      color: var(--cream); line-height: 1.05; margin-bottom: 28px;
+    }
+    .inq-sub {
+      font-family: var(--sans); font-size: 16px;
+      color: rgba(242,236,224,0.55); max-width: 380px;
+      line-height: 1.85; margin-bottom: 48px;
+    }
+    .social-proof { display: flex; flex-direction: column; gap: 12px; }
+    .social-proof span {
+      font-family: var(--sans); font-size: 13px;
+      color: rgba(242,236,224,0.4);
+    }
+    .social-proof span::before {
+      content: '✦  '; color: var(--gold);
+    }
+    .inq-form-wrap {
+      background: rgba(242,236,224,0.03);
+      border: 1px solid rgba(201,169,110,0.15);
+      padding: 48px; border-radius: 4px;
+    }
+    .form-group { margin-bottom: 36px; }
+    .form-group input {
+      border: none; border-bottom: 1px solid rgba(201,169,110,0.3);
+      background: transparent; color: var(--cream);
+      font-family: var(--sans); font-size: 16px;
+      padding: 16px 0; width: 100%; outline: none;
+      transition: border-color 0.3s; cursor: none;
+    }
+    .form-group input:focus { border-bottom-color: var(--gold); }
+    .form-group input::placeholder { color: rgba(242,236,224,0.35); }
+    #submit-btn {
+      width: 100%; height: 56px; background: var(--gold);
+      color: #080806; font-family: var(--sans); font-size: 13px;
+      letter-spacing: 3px; text-transform: uppercase; font-weight: 600;
+      border: none; cursor: none;
+      transition: opacity 0.3s; margin-bottom: 20px; display: block;
+    }
+    #submit-btn:hover { opacity: 0.85; }
+    .wa-line {
+      text-align: center; font-family: var(--sans);
+      font-size: 13px; color: var(--gold);
+    }
+    .wa-line a { color: var(--gold); text-decoration: none; cursor: none; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #050504; padding: 60px 8vw; position: relative;
+    }
+    footer::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px; background: rgba(201,169,110,0.15);
+    }
+    .footer-inner {
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 24px;
+    }
+    .footer-brand {
+      font-family: var(--serif); font-size: 20px;
+      letter-spacing: 6px; color: var(--gold); margin-bottom: 10px;
+    }
+    .footer-tagline {
+      font-family: var(--sans); font-size: 13px;
+      color: rgba(242,236,224,0.35);
+    }
+    .footer-right {
+      text-align: right; font-family: var(--sans);
+      font-size: 12px; color: rgba(242,236,224,0.3); line-height: 2;
+    }
+    .footer-right a {
+      color: rgba(242,236,224,0.3); text-decoration: none;
+      cursor: none; display: block; transition: color 0.3s;
+    }
+    .footer-right a:hover { color: var(--gold); }
+
+    /* ─── WORD SPLIT ─── */
+    .w-wrap { overflow: hidden; display: inline-block; vertical-align: bottom; }
+    .w-inner { display: inline-block; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      #inquiry { grid-template-columns: 1fr; }
+      #arch-sticky-inner { flex-direction: column; padding: 40px 6vw; gap: 24px; }
+      .iso-left { width: 100%; height: auto; min-height: 180px; }
+      #iso-video-container { position: relative; width: 100%; height: 50vh; }
+      .iso-h-a, .iso-h-b { font-size: 44px !important; }
+      .par-text { font-size: 52px; }
+      .hl { font-size: 52px !important; }
+      .gallery-card { width: 300px; height: 430px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Buffer loading bar -->
-  <div id="buffer-bar"></div>
-
-  <!-- Custom Cursor -->
   <div id="cursor"></div>
+  <div id="cursor-follower"></div>
+  <div id="cursor-label">EXPLORE</div>
 
-  <!-- Scroll Progress Bar -->
-  <div id="scroll-progress"></div>
+  <!-- LOADER -->
+  <div id="loader">
+    <div id="loader-text">BOHO PODS</div>
+    <div id="loader-line"></div>
+  </div>
 
-  <!-- =============================================
-       SECTION 1: SCROLL-JACKED VIDEO HERO
-  ============================================= -->
-  <div id="video-scroll-wrapper">
-    <div id="video-sticky">
-      <video
-        id="hero-video"
-        src="bohopods-story-final.mp4"
-        muted
-        playsinline
-        preload="auto"
-        poster="bohopods-exterior-mountain-sunset-terrace-outdoor-seating.png"
-      ></video>
-      <div id="video-overlay"></div>
+  <!-- PROGRESS BAR -->
+  <div id="progress-bar"><div id="progress-fill"></div></div>
 
-      <!-- Scroll Text Lines -->
-      <div class="scroll-text top" id="text-1">
-        <h2>The Mountains Are Calling</h2>
+  <!-- ══════════════════════════════════════════
+       S1 · HERO
+  ══════════════════════════════════════════ -->
+  <section id="hero-wrapper">
+    <div id="hero-sticky">
+      <video id="hero-video" autoplay muted loop playsinline preload="auto">
+        <source src="public/bohopods-story-final.mp4" type="video/mp4">
+      </video>
+      <div id="hero-overlay"></div>
+
+      <!-- Phase 1 -->
+      <div class="hero-phase" id="phase1">
+        <span class="hl hl-cream" style="font-size:88px;letter-spacing:-1px;font-style:italic;">The Mountains</span>
+        <span class="hl hl-gold"  style="font-size:88px;letter-spacing:-1px;font-style:italic;">Are Calling.</span>
       </div>
-      <div class="scroll-text top" id="text-2">
-        <h2>A Pod. Your Land. Your Rules.</h2>
+
+      <!-- Phase 2 -->
+      <div class="hero-phase" id="phase2">
+        <span class="hl hl-cream hl-p2a" style="font-size:72px;">A Pod. Your Land.</span>
+        <span class="hl hl-gold  hl-p2b" style="font-size:72px;font-style:italic;">Your Rules.</span>
       </div>
-      <div class="scroll-text bottom" id="text-3">
-        <h2 class="italic">Step Inside</h2>
+
+      <!-- Phase 3 — centred -->
+      <div class="hero-phase" id="phase3">
+        <span class="hl hl-cream hl-p3" style="font-size:130px;font-weight:300;font-style:italic;">Step</span>
+        <span class="hl hl-gold  hl-p3" style="font-size:130px;font-weight:300;font-style:italic;">Inside.</span>
       </div>
-      <div class="scroll-text bottom" id="text-4">
-        <h2>Wake Up To This. Every Morning.</h2>
+
+      <!-- Phase 4 -->
+      <div class="hero-phase" id="phase4">
+        <span class="hl hl-cream hl-p4" style="font-size:68px;">Wake Up To This.</span>
+        <span class="hl hl-p4"
+          style="font-family:var(--sans);font-size:20px;color:rgba(242,236,224,0.6);letter-spacing:1px;margin-top:14px;">
+          Every. Single. Morning.
+        </span>
       </div>
-      <div class="scroll-text bottom" id="text-5">
-        <h2 class="gold" style="font-weight:700;">Own The Landscape.</h2>
+
+      <!-- Phase 5 -->
+      <div class="hero-phase" id="phase5">
+        <span class="hl hl-cream hl-p5" style="font-size:96px;font-weight:600;">Own The</span>
+        <span class="hl hl-gold  hl-p5" style="font-size:96px;font-weight:600;position:relative;display:inline-block;">
+          Landscape.
+          <span id="underline-draw"
+            style="position:absolute;bottom:-4px;left:0;height:2px;background:var(--gold);width:0;display:block;"></span>
+        </span>
       </div>
+
+      <div id="hero-explore">↓&nbsp;&nbsp;Explore Pods</div>
+
+      <div id="scroll-indicator">
+        <span>SCROLL</span>
+        <div id="scroll-line"><div id="scroll-dot"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       S2 · GALLERY STRIP
+  ══════════════════════════════════════════ -->
+  <section id="gallery-wrapper">
+    <div id="gallery-sticky">
+      <div id="gallery-label">EXPLORE PODS</div>
+      <div id="gallery-track">
+
+        <div class="gallery-card">
+          <div class="card-image-wrap">
+            <img class="card-image" loading="lazy"
+              src="public/bohopods-interior-bedroom-mountain-valley-view-reading-chair.png" alt="">
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="card-tag">MOUNTAIN EDITION</div>
+              <div class="card-title">Valley Vista</div>
+              <div class="card-desc">Floor-to-ceiling glass. Clouds at eye level.</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <div class="card-image-wrap">
+            <img class="card-image" loading="lazy"
+              src="public/bohopods-exterior-mountain-sunset-terrace-outdoor-seating.png" alt="">
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="card-tag">HILLTOP SERIES</div>
+              <div class="card-title">Sunset Terrace</div>
+              <div class="card-desc">Your deck. The entire horizon.</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <div class="card-image-wrap">
+            <img class="card-image" loading="lazy"
+              src="public/bohopods-interior-bedroom-curved-glass-misty-mountain-valley.png" alt="">
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="card-tag">CURVED GLASS</div>
+              <div class="card-title">The Arc</div>
+              <div class="card-desc">Where the bedroom becomes the view.</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <div class="card-image-wrap">
+            <img class="card-image" loading="lazy"
+              src="public/bohopods-exterior-forest-stone-firepit-misty-mountains.png" alt="">
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="card-tag">FOREST EDITION</div>
+              <div class="card-title">Stone &amp; Mist</div>
+              <div class="card-desc">Mornings that smell like earth and pine.</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <div class="card-image-wrap">
+            <img class="card-image" loading="lazy"
+              src="public/bohopods-aerial-exterior-beach-tropical-firepit-lily-pond.png" alt="">
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="card-tag">COASTAL EDITION</div>
+              <div class="card-title">Shoreline</div>
+              <div class="card-desc">The Arabian Sea as your backyard.</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <div class="card-image-wrap">
+            <img class="card-image" loading="lazy"
+              src="public/bohopods-deck-beachfront-lounge-palm-sunset.png" alt="">
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="card-tag">DECK LIVING</div>
+              <div class="card-title">The Golden Hour</div>
+              <div class="card-desc">Some views are worth everything.</div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       S3 · VIDEO SCROLL PIN
+  ══════════════════════════════════════════ -->
+  <div id="arch-section-wrapper">
+    <div id="arch-sticky-inner">
+
+      <!-- LEFT: scroll-driven text states -->
+      <div class="iso-left">
+
+        <div class="iso-phase" id="iso-phase-0">
+          <span class="iso-eyebrow">THE ARCHITECTURE</span>
+          <span class="iso-h iso-h-a cream">See What's</span>
+          <span class="iso-h iso-h-a gold">Inside.</span>
+          <p class="iso-body-text">Every Boho Pod is a study in precision. Open-plan layout. Full-glass perimeter. Prefab-engineered to sit anywhere your land allows.</p>
+        </div>
+
+        <div class="iso-phase" id="iso-phase-1">
+          <span class="iso-eyebrow">THE LAYOUT</span>
+          <span class="iso-h iso-h-b cream">Open Plan.</span>
+          <span class="iso-h iso-h-b gold">Full Glass.</span>
+          <p class="iso-body-text">A perimeter of glass on all four sides. Natural light floods every corner. The boundary between inside and outside disappears completely.</p>
+        </div>
+
+        <div class="iso-phase" id="iso-phase-2">
+          <span class="iso-eyebrow">THE DETAIL</span>
+          <span class="iso-h iso-h-b cream">Engineered For</span>
+          <span class="iso-h iso-h-b gold">Your Land.</span>
+          <p class="iso-body-text">12 models. 2BHK and 3BHK variants. Each pod is precision-engineered to your site's contours — delivered and installed within weeks, not months.</p>
+          <div class="stat-pills">
+            <div class="stat-pill">12 Models</div>
+            <div class="stat-pill">2BHK &amp; 3BHK</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: scroll-scrubbed video -->
+      <div id="iso-video-container">
+        <video id="iso-video" src="public/bohopods-iso-animation.mp4" muted playsinline preload="auto"></video>
+      </div>
+
     </div>
   </div>
 
-  <!-- =============================================
-       SECTION 2: ISOMETRIC REVEAL
-  ============================================= -->
-  <section id="section-isometric">
-    <div class="iso-left">
-      <h2>See What's Inside</h2>
-      <p>Every Boho Pod is engineered for the landscape it lives in. Open plan. Full glass. Prefab precision.</p>
-      <div class="stat-pills">
-        <div class="stat-pill">12 Pod Models</div>
-        <div class="stat-pill">2BHK &amp; 3BHK Variants</div>
+  <!-- ══════════════════════════════════════════
+       S4 · PARALLAX PANELS
+  ══════════════════════════════════════════ -->
+  <div class="par-panel" id="pp1">
+    <div class="par-bg" id="pb1"
+      style="background-image:url('public/bohopods-aerial-exterior-hilltop-terraced-garden-misty-valley.png')"></div>
+    <div class="par-overlay"></div>
+    <p class="par-text" id="pt1">Built for the view.</p>
+  </div>
+  <div class="par-panel" id="pp2">
+    <div class="par-bg" id="pb2"
+      style="background-image:url('public/bohopods-exterior-zen-rock-garden-mountain-backdrop.png')"></div>
+    <div class="par-overlay"></div>
+    <p class="par-text" id="pt2">Engineered for the land.</p>
+  </div>
+  <div class="par-panel" id="pp3">
+    <div class="par-bg" id="pb3"
+      style="background-image:url('public/bohopods-interior-bedroom-zen-garden-pendant-lights-white-bed.png')"></div>
+    <div class="par-overlay"></div>
+    <p class="par-text" id="pt3">Designed for the moment.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       S5 · ADD-ONS
+  ══════════════════════════════════════════ -->
+  <section id="addons">
+    <div class="addons-inner">
+
+      <!-- heading row -->
+      <div class="addons-header">
+        <div class="addons-header-left">
+          <span class="addons-label">CUSTOMISATION</span>
+          <div class="addons-heading">Personalise<br>Your Pod.</div>
+        </div>
+        <div class="addons-header-right">
+          Every Boho Pod is built to your specification.<br>
+          Choose your finish, your landscape, your life.
+        </div>
       </div>
-    </div>
-    <div class="iso-right" id="iso-image">
-      <img src="bohopods-3d-isometric-floorplan-pod-layout.png" alt="Boho Pod Isometric Floorplan" />
+
+      <!-- Row 1 -->
+      <div class="addons-row">
+
+        <div class="ac" id="addon-1">
+          <img class="ac-img" loading="lazy"
+            src="public/bohopods-addon-firepit.png" alt="Fire Pit">
+          <div class="ac-overlay"></div>
+          <div class="ac-body">
+            <span class="ac-num">01</span>
+            <div class="ac-name">Fire Pit</div>
+            <p class="ac-desc">Handcrafted stone surround. Evenings that last all night.</p>
+          </div>
+        </div>
+
+        <div class="ac" id="addon-2">
+          <img class="ac-img" loading="lazy"
+            src="public/bohopods-addon-plungepool.png" alt="Plunge Pool">
+          <div class="ac-overlay"></div>
+          <div class="ac-body">
+            <span class="ac-num">02</span>
+            <div class="ac-name">Plunge Pool</div>
+            <p class="ac-desc">Cold dip at 6am. The world's best alarm clock.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Row 2 -->
+      <div class="addons-row">
+
+        <div class="ac" id="addon-3">
+          <img class="ac-img" loading="lazy"
+            src="public/bohopods-addon-darkpanel.png" alt="Dark Paneling">
+          <div class="ac-overlay"></div>
+          <div class="ac-body">
+            <span class="ac-num">03</span>
+            <div class="ac-name">Dark Paneling</div>
+            <p class="ac-desc">Moody. Rich. Deep vertical wood grain.</p>
+          </div>
+        </div>
+
+        <div id="addon-quote">
+          <div class="ac-quote-inner">
+            <div class="ac-quote-line"></div>
+            <p class="ac-quote-text">"Every detail of your pod is a choice.<br>Make it yours."</p>
+            <div class="ac-quote-line ac-quote-line-b"></div>
+          </div>
+        </div>
+
+        <div class="ac" id="addon-4">
+          <img class="ac-img" loading="lazy"
+            src="public/bohopods-addon-lightpanel.png" alt="Light Paneling">
+          <div class="ac-overlay"></div>
+          <div class="ac-body">
+            <span class="ac-num">04</span>
+            <div class="ac-name">Light Paneling</div>
+            <p class="ac-desc">Bleached oak. Airy. The feeling of perpetual morning.</p>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   </section>
 
-  <!-- =============================================
-       SECTION 3: POD GALLERY
-  ============================================= -->
-  <section id="section-gallery">
-    <div class="gallery-header">
-      <h2>Choose Your Pod</h2>
-      <p>Each model. A different landscape. The same uncompromising quality.</p>
+  <!-- ══════════════════════════════════════════
+       S6 · INQUIRY FORM
+  ══════════════════════════════════════════ -->
+  <section id="inquiry">
+    <div class="inq-left">
+      <div class="inq-eyebrow">GET STARTED</div>
+      <div class="inq-heading">Tell us where<br>your land is.</div>
+      <p class="inq-sub">We'll tell you which pod belongs there. No commitment. Just clarity.</p>
+      <div class="social-proof">
+        <span>12 Pod Models</span>
+        <span>Ships Anywhere</span>
+        <span>Installed in 30 Days</span>
+      </div>
     </div>
-    <div class="cards-row">
-      <div class="pod-card" id="card-1">
-        <img src="bohopods-interior-bedroom-mountain-valley-view-reading-chair.png" alt="Mountain Edition" />
-        <div class="pod-card-body">
-          <h3>Mountain Edition</h3>
-          <p>Floor-to-ceiling glass facing the valley. Wake up inside the clouds.</p>
-          <a href="#section-form" class="pod-cta">Enquire About This Pod</a>
-        </div>
-      </div>
-      <div class="pod-card" id="card-2">
-        <img src="bohopods-exterior-forest-stone-firepit-misty-mountains.png" alt="Forest Edition" />
-        <div class="pod-card-body">
-          <h3>Forest Edition</h3>
-          <p>Stone fire pit. Misty mornings. Your private forest retreat.</p>
-          <a href="#section-form" class="pod-cta">Enquire About This Pod</a>
-        </div>
-      </div>
-      <div class="pod-card" id="card-3">
-        <img src="bohopods-aerial-exterior-beach-tropical-firepit-lily-pond.png" alt="Coastal Edition" />
-        <div class="pod-card-body">
-          <h3>Coastal Edition</h3>
-          <p>Beach frontage. Palm canopy. Sun setting into the Arabian Sea.</p>
-          <a href="#section-form" class="pod-cta">Enquire About This Pod</a>
-        </div>
+    <div class="inq-right">
+      <div class="inq-form-wrap">
+        <form id="inquiry-form">
+          <div class="form-group">
+            <input type="text" placeholder="Full Name" required>
+          </div>
+          <div class="form-group">
+            <input type="tel" placeholder="Mobile Number" required>
+          </div>
+          <button type="submit" id="submit-btn">REQUEST A CONSULTATION</button>
+        </form>
+        <div class="wa-line">Or message us directly on WhatsApp →</div>
       </div>
     </div>
   </section>
 
-  <!-- =============================================
-       SECTION 4: ADD-ONS STRIP
-  ============================================= -->
-  <section id="section-addons">
-    <div class="addons-heading">
-      <h2>Personalise Your Pod</h2>
-    </div>
-    <div class="addons-row">
-      <div class="addon-item">
-        <div class="addon-icon">🔥</div>
-        <div class="addon-name">Fire Pit</div>
-        <div class="addon-desc">Evenings around the flame</div>
-      </div>
-      <div class="addon-item">
-        <div class="addon-icon">🌿</div>
-        <div class="addon-name">Plunge Pool</div>
-        <div class="addon-desc">Cold dip at sunrise</div>
-      </div>
-      <div class="addon-item">
-        <div class="addon-icon">🪵</div>
-        <div class="addon-name">Dark Paneling</div>
-        <div class="addon-desc">Moody interior finish</div>
-      </div>
-      <div class="addon-item">
-        <div class="addon-icon">☀️</div>
-        <div class="addon-name">Light Paneling</div>
-        <div class="addon-desc">Airy, open interior</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- =============================================
-       SECTION 5: INQUIRY FORM
-  ============================================= -->
-  <section id="section-form">
-    <div class="form-left">
-      <h2>Start Your Journey</h2>
-      <p>Tell us where your land is. We'll tell you which pod belongs there.</p>
-    </div>
-    <div class="form-right">
-      <form id="inquiry-form" novalidate>
-        <div class="form-group">
-          <label for="full-name">Full Name</label>
-          <input type="text" id="full-name" name="full_name" placeholder="Your name" autocomplete="name" />
-        </div>
-        <div class="form-group">
-          <label for="mobile">Mobile Number</label>
-          <input type="tel" id="mobile" name="mobile" placeholder="+91 00000 00000" autocomplete="tel" />
-        </div>
-        <button type="submit" class="form-submit">Begin Your Journey</button>
-        <a href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener noreferrer" class="whatsapp-link">
-          Or chat with us on WhatsApp →
-        </a>
-        <div class="form-success" id="form-success">We'll be in touch. 🌿</div>
-      </form>
-    </div>
-  </section>
-
-  <!-- =============================================
+  <!-- ══════════════════════════════════════════
        FOOTER
-  ============================================= -->
+  ══════════════════════════════════════════ -->
   <footer>
-    <span>© 2025 Boho Pods. Crafted by SlaqAI.</span>
-    <a href="#" aria-label="Instagram">
-      <svg class="footer-ig-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-      </svg>
-    </a>
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">BOHO PODS</div>
+        <div class="footer-tagline">Prefab luxury. Anywhere your land takes you.</div>
+      </div>
+      <div class="footer-right">
+        <a href="#">Instagram</a>
+        <span>© 2025 Boho Pods. Demo by SlaqAI.</span>
+      </div>
+    </div>
   </footer>
 
-  <!-- =============================================
-       JAVASCRIPT
-  ============================================= -->
+  <!-- ══════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════ -->
   <script>
-    // ─── Custom Cursor ───────────────────────────
-    const cursor = document.getElementById('cursor');
-    document.addEventListener('mousemove', (e) => {
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top = e.clientY + 'px';
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ─────────────────────────────────────────────
+     CURSOR
+  ───────────────────────────────────────────── */
+  (function () {
+    const dot = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-follower');
+    let fx = -20, fy = -20, mx = -20, my = -20;
+
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+    (function tick() {
+      fx += (mx - fx) * 0.12;
+      fy += (my - fy) * 0.12;
+      dot.style.left  = mx + 'px';
+      dot.style.top   = my + 'px';
+      ring.style.left = fx + 'px';
+      ring.style.top  = fy + 'px';
+      requestAnimationFrame(tick);
+    })();
+
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
     });
-    document.addEventListener('mouseleave', () => {
-      cursor.style.opacity = '0';
-    });
-    document.addEventListener('mouseenter', () => {
-      cursor.style.opacity = '1';
-    });
+  })();
 
-    // ─── Scroll-Jacked Video ─────────────────────
-    const video = document.getElementById('hero-video');
-    const wrapper = document.getElementById('video-scroll-wrapper');
-    const progressBar = document.getElementById('scroll-progress');
-    const bufferBar = document.getElementById('buffer-bar');
-
-    const texts = {
-      1: { el: document.getElementById('text-1'), fadeIn: 0.08, fadeOut: 0.18 },
-      2: { el: document.getElementById('text-2'), fadeIn: 0.20, fadeOut: 0.32 },
-      3: { el: document.getElementById('text-3'), fadeIn: 0.38, fadeOut: 0.50 },
-      4: { el: document.getElementById('text-4'), fadeIn: 0.55, fadeOut: 0.67 },
-      5: { el: document.getElementById('text-5'), fadeIn: 0.72, fadeOut: 0.85 },
-    };
-
-    let videoDuration = 0;
-    let targetTime = 0;
-    let lastSeekedTime = -1;
-    const FRAME_DELTA = 1 / 24; // seek only when target differs by ≥1 frame @24fps
-
-    function syncDuration() {
-      if (video.duration && isFinite(video.duration)) videoDuration = video.duration;
-    }
-    ['loadedmetadata', 'durationchange', 'canplay', 'canplaythrough'].forEach(ev => {
-      video.addEventListener(ev, syncDuration);
+  /* ─────────────────────────────────────────────
+     LOADER → initSite
+  ───────────────────────────────────────────── */
+  const loaderTL = gsap.timeline();
+  loaderTL
+    .to('#loader-text', { opacity: 1, duration: 0.8, ease: 'power2.out' })
+    .to('#loader-line', { width: 120, duration: 1.2, ease: 'power3.inOut' }, 0.1)
+    .to('#loader', { opacity: 0, duration: 0.6, ease: 'power2.inOut' }, '+=0.5')
+    .call(() => {
+      document.getElementById('loader').style.display = 'none';
+      initSite();
     });
 
-    // Show buffer download progress on the gold bar at the bottom
-    video.addEventListener('progress', () => {
-      if (!video.buffered.length || !videoDuration) return;
-      const pct = (video.buffered.end(video.buffered.length - 1) / videoDuration) * 100;
-      bufferBar.style.width = Math.min(pct, 100) + '%';
-      if (pct >= 99) {
-        bufferBar.classList.add('done');
+  /* ─────────────────────────────────────────────
+     INIT
+  ───────────────────────────────────────────── */
+  function initSite() {
+
+    /* ── Lenis ── */
+    const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    /* ── Progress bar ── */
+    gsap.to('#progress-fill', {
+      scaleY: 1,
+      ease: 'none',
+      scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 0 }
+    });
+
+    /* ── Scroll dot ── */
+    gsap.to('#scroll-dot', { y: 34, repeat: -1, duration: 1.2, ease: 'none' });
+    gsap.to('#scroll-indicator', {
+      opacity: 0,
+      scrollTrigger: { trigger: '#hero-wrapper', start: 'top top', end: '4% top', scrub: true }
+    });
+
+    /* ───────────────────────────────────────────
+       HERO — phase 1 entrance on load
+    ─────────────────────────────────────────── */
+    gsap.set('#phase1', { opacity: 1 });
+    gsap.from('#phase1 .hl', {
+      y: 60, opacity: 0, stagger: 0.18,
+      duration: 1, ease: 'power3.out', delay: 0.3
+    });
+
+    /* ───────────────────────────────────────────
+       HERO — master scroll timeline (600vh)
+    ─────────────────────────────────────────── */
+    const heroTL = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#hero-wrapper',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1.5,
+        invalidateOnRefresh: true,
       }
     });
-    video.addEventListener('canplaythrough', () => {
-      bufferBar.style.width = '100%';
-      bufferBar.classList.add('done');
+
+    /* Timeline runs 0 → 10 (mapped to full 600vh scroll) */
+    heroTL
+      /* Phase 1 exit (0 → 1.6) */
+      .to('#phase1 .hl', { y: -50, opacity: 0, stagger: 0.06, duration: 0.6, ease: 'power2.in' }, 1.0)
+      .set('#phase1', { opacity: 0 }, 1.7)
+
+      /* Phase 2 enter + exit (1.7 → 3.6) */
+      .set('#phase2',     { opacity: 1 }, 1.7)
+      .fromTo('.hl-p2a',  { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 0.7, ease: 'power3.out' }, 1.8)
+      .fromTo('.hl-p2b',  { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 0.7, ease: 'power3.out' }, 2.1)
+      .to('#phase2',      { opacity: 0, duration: 0.4 }, 3.1)
+      .set('#phase2',     { opacity: 0 }, 3.6)
+
+      /* Phase 3 enter + exit (3.6 → 5.2) */
+      .set('#phase3',     { opacity: 1 }, 3.6)
+      .fromTo('.hl-p3',   { scale: 1.35, opacity: 0 }, { scale: 1, opacity: 1, stagger: 0.12, duration: 0.7, ease: 'power2.out' }, 3.7)
+      .to('.hl-p3',       { scale: 0.82, opacity: 0, duration: 0.5, ease: 'power2.in' }, 4.6)
+      .set('#phase3',     { opacity: 0 }, 5.2)
+
+      /* Phase 4 enter + exit (5.2 → 7.0) */
+      .set('#phase4',     { opacity: 1 }, 5.2)
+      .fromTo('.hl-p4',   { y: 80, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.12, duration: 0.6, ease: 'power3.out' }, 5.3)
+      .to('#phase4',      { opacity: 0, duration: 0.4 }, 6.5)
+      .set('#phase4',     { opacity: 0 }, 7.0)
+
+      /* Phase 5 enter + exit (7.0 → 8.8) */
+      .set('#phase5',     { opacity: 1 }, 7.0)
+      .fromTo('.hl-p5',   { opacity: 0, filter: 'blur(10px)' }, { opacity: 1, filter: 'blur(0px)', stagger: 0.12, duration: 0.7, ease: 'power2.out' }, 7.1)
+      .fromTo('#underline-draw', { width: '0%' }, { width: '100%', duration: 0.5, ease: 'power3.out' }, 7.6)
+      .to('#phase5',      { opacity: 0, duration: 0.4 }, 8.3)
+      .set('#phase5',     { opacity: 0 }, 8.8)
+
+      /* Explore label (8.8 → 10) */
+      .to('#hero-explore', { opacity: 1, duration: 0.3 }, 8.8)
+      .to('#hero-explore', { opacity: 0, duration: 0.3 }, 9.6);
+
+    /* ───────────────────────────────────────────
+       GALLERY — horizontal scroll
+    ─────────────────────────────────────────── */
+    const track = document.getElementById('gallery-track');
+
+    function getGalleryX() {
+      return -(track.scrollWidth - window.innerWidth);
+    }
+
+    gsap.to(track, {
+      x: getGalleryX,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#gallery-wrapper',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1.5,
+        invalidateOnRefresh: true,
+        onRefresh: self => self.animation.vars.x = getGalleryX(),
+      }
     });
 
-    // iOS Safari ignores preload="auto" and silently drops currentTime
-    // assignments until play() has been called within a user gesture.
-    // On first touch/click, play() + immediate pause() unlocks seeking.
-    let unlocked = false;
-    function unlockVideo() {
-      if (unlocked) return;
-      unlocked = true;
-      video.play().then(() => {
-        video.pause();
-        if (videoDuration) video.currentTime = getScrollProgress() * videoDuration;
-      }).catch(() => {});
-    }
-    window.addEventListener('touchstart', unlockVideo, { once: true, passive: true });
-    window.addEventListener('mousedown', unlockVideo, { once: true });
+    /* ───────────────────────────────────────────
+       S3 — SCROLL-SCRUBBED VIDEO + TEXT STATES
+    ─────────────────────────────────────────── */
+    const isoVideo    = document.getElementById('iso-video');
+    const archWrapper = document.getElementById('arch-section-wrapper');
 
-    function getScrollProgress() {
-      const maxScroll = wrapper.offsetHeight - window.innerHeight;
-      return maxScroll > 0 ? Math.max(0, Math.min(1, window.scrollY / maxScroll)) : 0;
-    }
+    isoVideo.pause();
+    isoVideo.currentTime = 0;
 
-    function getTextOpacity(progress, fadeIn, fadeOut) {
-      const d = 0.04;
-      if (progress < fadeIn) return 0;
-      if (progress < fadeIn + d) return (progress - fadeIn) / d;
-      if (progress < fadeOut) return 1;
-      if (progress < fadeOut + d) return 1 - (progress - fadeOut) / d;
-      return 0;
-    }
-
-    // Scroll: update target time + UI (cheap — no decode work here)
-    window.addEventListener('scroll', () => {
-      const p = getScrollProgress();
-      if (videoDuration) targetTime = p * videoDuration;
-      progressBar.style.height = (p * 100) + '%';
-      for (const k in texts) {
-        texts[k].el.style.opacity = getTextOpacity(p, texts[k].fadeIn, texts[k].fadeOut);
-      }
-    }, { passive: true });
-
-    // Dedicated rAF loop for seeking.
-    // readyState >= 2 = frame data is in buffer, seek is instant (no network).
-    // FRAME_DELTA throttle = decoder never floods, frames feel intentional.
-    function seekLoop() {
-      syncDuration();
-      if (videoDuration > 0 && video.readyState >= 2) {
-        const delta = Math.abs(targetTime - lastSeekedTime);
-        if (delta >= FRAME_DELTA) {
-          lastSeekedTime = targetTime;
-          video.currentTime = targetTime;
-        }
-      }
-      requestAnimationFrame(seekLoop);
-    }
-    seekLoop();
-
-    // ─── IntersectionObserver for Scroll Reveals ──
-
-    // Isometric image reveal
-    const isoImage = document.getElementById('iso-image');
-    const isoObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          isoImage.classList.add('revealed');
-          isoObserver.unobserve(isoImage);
+    function initArchScrollVideo() {
+      ScrollTrigger.create({
+        trigger: archWrapper,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: true,
+        pin: '#arch-sticky-inner',
+        anticipatePin: 1,
+        onUpdate(self) {
+          if (isoVideo.duration) {
+            isoVideo.currentTime = self.progress * isoVideo.duration;
+          }
         }
       });
-    }, { threshold: 0.2 });
-    isoObserver.observe(isoImage);
+    }
 
-    // Pod cards stagger reveal
-    const cards = [
-      { el: document.getElementById('card-1'), delay: 0 },
-      { el: document.getElementById('card-2'), delay: 150 },
-      { el: document.getElementById('card-3'), delay: 300 },
-    ];
+    if (isoVideo.readyState >= 1) {
+      initArchScrollVideo();
+    } else {
+      isoVideo.addEventListener('loadedmetadata', initArchScrollVideo, { once: true });
+    }
 
-    const cardsRow = document.querySelector('.cards-row');
-    const cardsObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          cards.forEach(({ el, delay }) => {
-            setTimeout(() => {
-              el.classList.add('revealed');
-            }, delay);
-          });
-          cardsObserver.unobserve(cardsRow);
+    /* imperative text-state swap */
+    gsap.set('#iso-phase-1, #iso-phase-2', { opacity: 0, y: 20 });
+
+    let currentTextState = 0;
+
+    function switchTextState(newState) {
+      if (newState === currentTextState) return;
+      const outEl = document.getElementById('iso-phase-' + currentTextState);
+      const inEl  = document.getElementById('iso-phase-' + newState);
+      gsap.to(outEl, { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in',
+        onComplete() { gsap.set(outEl, { y: 20 }); }
+      });
+      gsap.fromTo(inEl, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.1 });
+      currentTextState = newState;
+    }
+
+    ScrollTrigger.create({
+      trigger: archWrapper,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: true,
+      onUpdate(self) {
+        const p = self.progress;
+        const target = p < 0.33 ? 0 : p < 0.66 ? 1 : 2;
+        switchTextState(target);
+      }
+    });
+
+    /* ───────────────────────────────────────────
+       PARALLAX PANELS
+    ─────────────────────────────────────────── */
+    [1,2,3].forEach(i => {
+      const bg  = document.getElementById('pb' + i);
+      const txt = document.getElementById('pt' + i);
+      const pan = document.getElementById('pp' + i);
+
+      gsap.fromTo(bg,
+        { yPercent: -12 },
+        {
+          yPercent: 12,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: pan, start: 'top bottom', end: 'bottom top', scrub: true
+          }
+        }
+      );
+
+      gsap.set(txt, { opacity: 0, y: 32 });
+      ScrollTrigger.create({
+        trigger: pan, start: 'top 65%', once: true,
+        onEnter() {
+          gsap.to(txt, { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out' });
         }
       });
-    }, { threshold: 0.1 });
-    cardsObserver.observe(cardsRow);
+    });
 
-    // ─── Inquiry Form ─────────────────────────────
-    const form = document.getElementById('inquiry-form');
-    const successMsg = document.getElementById('form-success');
+    /* ───────────────────────────────────────────
+       ADD-ONS — asymmetric grid
+    ─────────────────────────────────────────── */
 
-    form.addEventListener('submit', (e) => {
+    // Heading entrance
+    gsap.set('.addons-header-left',  { opacity: 0, x: -40 });
+    gsap.set('.addons-header-right', { opacity: 0, x:  40 });
+    ScrollTrigger.create({
+      trigger: '#addons', start: 'top 80%', once: true,
+      onEnter() {
+        gsap.to('.addons-header-left',  { opacity: 1, x: 0, duration: 0.9, ease: 'power3.out' });
+        gsap.to('.addons-header-right', { opacity: 1, x: 0, duration: 0.9, delay: 0.15, ease: 'power3.out' });
+      }
+    });
+
+    // Cards stagger
+    gsap.set('.ac', { opacity: 0, y: 60 });
+    gsap.set('#addon-quote', { opacity: 0, scale: 0.95 });
+    ScrollTrigger.create({
+      trigger: '.addons-row', start: 'top 80%', once: true,
+      onEnter() {
+        gsap.to('.ac', {
+          opacity: 1, y: 0, duration: 1.0,
+          stagger: 0.1, ease: 'power3.out'
+        });
+        gsap.to('#addon-quote', {
+          opacity: 1, scale: 1, duration: 0.8,
+          delay: 0.25, ease: 'power2.out'
+        });
+      }
+    });
+
+    // Cursor label — follows mouse, shows on .ac hover
+    const cursorLabel = document.getElementById('cursor-label');
+    document.addEventListener('mousemove', e => {
+      cursorLabel.style.left = (e.clientX + 16) + 'px';
+      cursorLabel.style.top  = (e.clientY + 16) + 'px';
+    });
+    document.querySelectorAll('.ac').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        gsap.to(cursorLabel, { opacity: 1, scale: 1, duration: 0.2, ease: 'power2.out' });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(cursorLabel, { opacity: 0, scale: 0.8, duration: 0.15 });
+      });
+    });
+
+    /* ───────────────────────────────────────────
+       INQUIRY
+    ─────────────────────────────────────────── */
+    gsap.set('.inq-eyebrow, .inq-sub, .social-proof', { opacity: 0, y: 20 });
+    gsap.set('.inq-right', { opacity: 0, y: 40 });
+    ScrollTrigger.create({
+      trigger: '#inquiry', start: 'top 72%', once: true,
+      onEnter() {
+        gsap.to('.inq-eyebrow', { opacity: 1, y: 0, duration: 0.5 });
+        gsap.to('.inq-sub',     { opacity: 1, y: 0, duration: 0.6, delay: 0.15 });
+        gsap.to('.social-proof',{ opacity: 1, y: 0, duration: 0.6, delay: 0.28 });
+        gsap.to('.inq-right',   { opacity: 1, y: 0, duration: 0.9, delay: 0.2, ease: 'power3.out' });
+      }
+    });
+
+    gsap.set('.inq-heading', { opacity: 0, y: 30 });
+    ScrollTrigger.create({
+      trigger: '.inq-heading', start: 'top 82%', once: true,
+      onEnter() {
+        gsap.to('.inq-heading', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' });
+      }
+    });
+
+    /* ───────────────────────────────────────────
+       FORM SUBMIT
+    ─────────────────────────────────────────── */
+    document.getElementById('inquiry-form').addEventListener('submit', e => {
       e.preventDefault();
-      const name = document.getElementById('full-name').value.trim();
-      const mobile = document.getElementById('mobile').value.trim();
-
-      if (!name || !mobile) return;
-
-      // Hide form fields, show success
-      form.querySelectorAll('.form-group, .form-submit, .whatsapp-link').forEach(el => {
-        el.style.display = 'none';
-      });
-
-      successMsg.classList.add('visible');
+      const btn = document.getElementById('submit-btn');
+      btn.textContent = '✓  We\'ll be in touch.';
     });
 
-    // ─── Initial UI sync ──────────────────────────
-    onScroll(); // sync progress bar + text on load
+    /* Refresh after fonts */
+    document.fonts.ready.then(() => ScrollTrigger.refresh());
+  }
+
+  /* ─────────────────────────────────────────────
+     WORD SPLIT UTILITY
+  ───────────────────────────────────────────── */
+  function wordSplit(selector, extraDelay) {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    const words = el.textContent.trim().split(/\s+/);
+    el.innerHTML = words.map(w =>
+      `<span class="w-wrap"><span class="w-inner" style="transform:translateY(105%);display:inline-block">${w}</span></span>`
+    ).join(' ');
+
+    ScrollTrigger.create({
+      trigger: el, start: 'top 84%', once: true,
+      onEnter() {
+        gsap.to(el.querySelectorAll('.w-inner'), {
+          y: 0, duration: 0.9, stagger: 0.06,
+          delay: extraDelay || 0, ease: 'power4.out'
+        });
+      }
+    });
+  }
   </script>
 </body>
 </html>
