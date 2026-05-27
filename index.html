@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boho Pods — Luxury Prefab Glamping</title>
+
+  <!-- Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =============================================
+       CSS VARIABLES
+    ============================================= */
+    :root {
+      --color-bg: #0a0a08;
+      --color-cream: #f5f0e8;
+      --color-gold: #c9a96e;
+      --color-green: #2d4a2d;
+      --color-mist: rgba(245, 240, 232, 0.06);
+      --color-overlay: rgba(10, 10, 8, 0.45);
+      --color-cream-muted: rgba(245, 240, 232, 0.6);
+    }
+
+    /* =============================================
+       RESET & BASE
+    ============================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-cream);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+      opacity: 0;
+      animation: pageFadeIn 0.6s ease forwards;
+    }
+
+    @keyframes pageFadeIn {
+      to { opacity: 1; }
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    /* =============================================
+       CUSTOM CURSOR
+    ============================================= */
+    #cursor {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: var(--color-gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, left 0.1s ease, top 0.1s ease;
+      mix-blend-mode: normal;
+    }
+
+    /* =============================================
+       SCROLL PROGRESS BAR
+    ============================================= */
+    #scroll-progress {
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: 2px;
+      height: 0%;
+      background: var(--color-gold);
+      z-index: 1000;
+      transition: height 0.05s linear;
+    }
+
+    /* =============================================
+       SECTION 1 — SCROLL-JACKED VIDEO HERO
+    ============================================= */
+    #video-scroll-wrapper {
+      height: 400vh;
+      position: relative;
+    }
+
+    #video-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    #hero-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+
+    #video-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--color-overlay);
+      pointer-events: none;
+    }
+
+    /* Scroll text lines */
+    .scroll-text {
+      position: absolute;
+      left: 60px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+    }
+
+    .scroll-text.top {
+      top: 80px;
+    }
+
+    .scroll-text.bottom {
+      bottom: 100px;
+    }
+
+    .scroll-text h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      color: var(--color-cream);
+      line-height: 1.15;
+    }
+
+    .scroll-text h2.italic {
+      font-style: italic;
+    }
+
+    .scroll-text h2.gold {
+      color: var(--color-gold);
+    }
+
+    #text-1 { font-size: clamp(36px, 5vw, 64px); top: 80px; }
+    #text-2 { font-size: clamp(32px, 4.5vw, 64px); top: 80px; }
+    #text-3 { font-size: clamp(40px, 6vw, 80px); bottom: 100px; }
+    #text-4 { font-size: clamp(32px, 4.5vw, 64px); bottom: 100px; }
+    #text-5 { font-size: clamp(48px, 7vw, 96px); bottom: 80px; }
+
+    /* =============================================
+       SECTION 2 — ISOMETRIC REVEAL
+    ============================================= */
+    #section-isometric {
+      background: var(--color-bg);
+      padding: 120px 80px;
+      display: flex;
+      align-items: center;
+      gap: 80px;
+    }
+
+    .iso-left {
+      flex: 1;
+      max-width: 50%;
+    }
+
+    .iso-left h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(42px, 5vw, 72px);
+      font-weight: 600;
+      color: var(--color-cream);
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    .iso-left p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 18px;
+      color: var(--color-cream-muted);
+      max-width: 480px;
+      line-height: 1.8;
+      margin-bottom: 40px;
+    }
+
+    .stat-pills {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      border: 1px solid var(--color-gold);
+      padding: 10px 24px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      color: var(--color-gold);
+      background: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .iso-right {
+      flex: 1;
+      max-width: 50%;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+
+    .iso-right.revealed {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .iso-right img {
+      width: 100%;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
+    }
+
+    /* =============================================
+       SECTION 3 — POD GALLERY
+    ============================================= */
+    #section-gallery {
+      background: var(--color-bg);
+      padding: 100px 80px;
+    }
+
+    .gallery-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .gallery-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 600;
+      color: var(--color-cream);
+      margin-bottom: 16px;
+    }
+
+    .gallery-header p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 18px;
+      color: var(--color-cream-muted);
+    }
+
+    .cards-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .pod-card {
+      background: #111110;
+      border: 1px solid rgba(201, 169, 110, 0.2);
+      border-radius: 4px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .pod-card.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .pod-card img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .pod-card-body {
+      padding: 32px;
+    }
+
+    .pod-card-body h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--color-gold);
+      margin-bottom: 12px;
+    }
+
+    .pod-card-body p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--color-cream-muted);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .pod-cta {
+      display: inline-block;
+      border: 1px solid var(--color-gold);
+      color: var(--color-gold);
+      background: transparent;
+      padding: 12px 28px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease;
+      text-decoration: none;
+    }
+
+    .pod-cta:hover {
+      background: var(--color-gold);
+      color: var(--color-bg);
+    }
+
+    /* =============================================
+       SECTION 4 — ADD-ONS STRIP
+    ============================================= */
+    #section-addons {
+      background: #0f0f0d;
+      padding: 80px;
+    }
+
+    .addons-heading {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .addons-heading h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 600;
+      color: var(--color-cream);
+    }
+
+    .addons-row {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .addon-item {
+      flex: 1;
+      text-align: center;
+      padding: 0 40px;
+      position: relative;
+    }
+
+    .addon-item + .addon-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10%;
+      height: 80%;
+      width: 1px;
+      background: var(--color-gold);
+      opacity: 0.4;
+    }
+
+    .addon-icon {
+      font-size: 48px;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+
+    .addon-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--color-gold);
+      margin-bottom: 8px;
+    }
+
+    .addon-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--color-cream-muted);
+      line-height: 1.6;
+    }
+
+    /* =============================================
+       SECTION 5 — INQUIRY FORM
+    ============================================= */
+    #section-form {
+      background: #0d1a0d;
+      padding: 120px 80px;
+      display: flex;
+      align-items: flex-start;
+      gap: 80px;
+    }
+
+    .form-left {
+      flex: 1;
+      max-width: 45%;
+    }
+
+    .form-left h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 4.5vw, 64px);
+      font-weight: 600;
+      color: var(--color-cream);
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    .form-left p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 18px;
+      color: var(--color-cream-muted);
+      max-width: 420px;
+      line-height: 1.8;
+    }
+
+    .form-right {
+      flex: 1;
+    }
+
+    .form-group {
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      color: var(--color-cream-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(245, 240, 232, 0.25);
+      padding: 12px 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      color: var(--color-cream);
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input::placeholder {
+      color: rgba(245, 240, 232, 0.25);
+    }
+
+    .form-group input:focus {
+      border-bottom-color: var(--color-gold);
+    }
+
+    .form-submit {
+      width: 100%;
+      background: var(--color-gold);
+      color: var(--color-bg);
+      border: none;
+      padding: 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+      margin-bottom: 24px;
+    }
+
+    .form-submit:hover {
+      opacity: 0.88;
+    }
+
+    .whatsapp-link {
+      display: block;
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--color-gold);
+      text-decoration: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .whatsapp-link:hover {
+      opacity: 0.7;
+    }
+
+    .form-success {
+      display: none;
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      color: var(--color-cream);
+      padding: 24px 0;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .form-success.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer {
+      background: var(--color-bg);
+      border-top: 1px solid rgba(245, 240, 232, 0.08);
+      padding: 40px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    footer span {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--color-cream-muted);
+      letter-spacing: 1px;
+    }
+
+    footer a {
+      color: var(--color-cream-muted);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    footer a:hover {
+      color: var(--color-gold);
+    }
+
+    .footer-ig-icon {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* =============================================
+       MOBILE RESPONSIVE
+    ============================================= */
+    @media (max-width: 900px) {
+      .scroll-text {
+        left: 24px;
+        right: 24px;
+      }
+
+      #text-3, #text-4, #text-5 {
+        bottom: 60px;
+      }
+
+      #section-isometric {
+        flex-direction: column;
+        padding: 80px 32px;
+        gap: 48px;
+      }
+
+      .iso-left, .iso-right {
+        max-width: 100%;
+        width: 100%;
+      }
+
+      #section-gallery {
+        padding: 80px 24px;
+      }
+
+      .cards-row {
+        grid-template-columns: 1fr;
+      }
+
+      #section-addons {
+        padding: 60px 24px;
+      }
+
+      .addons-row {
+        flex-direction: column;
+        gap: 40px;
+      }
+
+      .addon-item + .addon-item::before {
+        display: none;
+      }
+
+      #section-form {
+        flex-direction: column;
+        padding: 80px 32px;
+        gap: 48px;
+      }
+
+      .form-left {
+        max-width: 100%;
+      }
+
+      footer {
+        flex-direction: column;
+        gap: 12px;
+        padding: 32px 24px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      #video-scroll-wrapper {
+        height: 300vh;
+      }
+
+      .stat-pills {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom Cursor -->
+  <div id="cursor"></div>
+
+  <!-- Scroll Progress Bar -->
+  <div id="scroll-progress"></div>
+
+  <!-- =============================================
+       SECTION 1: SCROLL-JACKED VIDEO HERO
+  ============================================= -->
+  <div id="video-scroll-wrapper">
+    <div id="video-sticky">
+      <video
+        id="hero-video"
+        src="bohopods-story-final.mp4"
+        muted
+        playsinline
+        preload="auto"
+      ></video>
+      <div id="video-overlay"></div>
+
+      <!-- Scroll Text Lines -->
+      <div class="scroll-text top" id="text-1">
+        <h2>The Mountains Are Calling</h2>
+      </div>
+      <div class="scroll-text top" id="text-2">
+        <h2>A Pod. Your Land. Your Rules.</h2>
+      </div>
+      <div class="scroll-text bottom" id="text-3">
+        <h2 class="italic">Step Inside</h2>
+      </div>
+      <div class="scroll-text bottom" id="text-4">
+        <h2>Wake Up To This. Every Morning.</h2>
+      </div>
+      <div class="scroll-text bottom" id="text-5">
+        <h2 class="gold" style="font-weight:700;">Own The Landscape.</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       SECTION 2: ISOMETRIC REVEAL
+  ============================================= -->
+  <section id="section-isometric">
+    <div class="iso-left">
+      <h2>See What's Inside</h2>
+      <p>Every Boho Pod is engineered for the landscape it lives in. Open plan. Full glass. Prefab precision.</p>
+      <div class="stat-pills">
+        <div class="stat-pill">12 Pod Models</div>
+        <div class="stat-pill">2BHK &amp; 3BHK Variants</div>
+      </div>
+    </div>
+    <div class="iso-right" id="iso-image">
+      <img src="bohopods-3d-isometric-floorplan-pod-layout.png" alt="Boho Pod Isometric Floorplan" />
+    </div>
+  </section>
+
+  <!-- =============================================
+       SECTION 3: POD GALLERY
+  ============================================= -->
+  <section id="section-gallery">
+    <div class="gallery-header">
+      <h2>Choose Your Pod</h2>
+      <p>Each model. A different landscape. The same uncompromising quality.</p>
+    </div>
+    <div class="cards-row">
+      <div class="pod-card" id="card-1">
+        <img src="bohopods-interior-bedroom-mountain-valley-view-reading-chair.png" alt="Mountain Edition" />
+        <div class="pod-card-body">
+          <h3>Mountain Edition</h3>
+          <p>Floor-to-ceiling glass facing the valley. Wake up inside the clouds.</p>
+          <a href="#section-form" class="pod-cta">Enquire About This Pod</a>
+        </div>
+      </div>
+      <div class="pod-card" id="card-2">
+        <img src="bohopods-exterior-forest-stone-firepit-misty-mountains.png" alt="Forest Edition" />
+        <div class="pod-card-body">
+          <h3>Forest Edition</h3>
+          <p>Stone fire pit. Misty mornings. Your private forest retreat.</p>
+          <a href="#section-form" class="pod-cta">Enquire About This Pod</a>
+        </div>
+      </div>
+      <div class="pod-card" id="card-3">
+        <img src="bohopods-aerial-exterior-beach-tropical-firepit-lily-pond.png" alt="Coastal Edition" />
+        <div class="pod-card-body">
+          <h3>Coastal Edition</h3>
+          <p>Beach frontage. Palm canopy. Sun setting into the Arabian Sea.</p>
+          <a href="#section-form" class="pod-cta">Enquire About This Pod</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       SECTION 4: ADD-ONS STRIP
+  ============================================= -->
+  <section id="section-addons">
+    <div class="addons-heading">
+      <h2>Personalise Your Pod</h2>
+    </div>
+    <div class="addons-row">
+      <div class="addon-item">
+        <div class="addon-icon">🔥</div>
+        <div class="addon-name">Fire Pit</div>
+        <div class="addon-desc">Evenings around the flame</div>
+      </div>
+      <div class="addon-item">
+        <div class="addon-icon">🌿</div>
+        <div class="addon-name">Plunge Pool</div>
+        <div class="addon-desc">Cold dip at sunrise</div>
+      </div>
+      <div class="addon-item">
+        <div class="addon-icon">🪵</div>
+        <div class="addon-name">Dark Paneling</div>
+        <div class="addon-desc">Moody interior finish</div>
+      </div>
+      <div class="addon-item">
+        <div class="addon-icon">☀️</div>
+        <div class="addon-name">Light Paneling</div>
+        <div class="addon-desc">Airy, open interior</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       SECTION 5: INQUIRY FORM
+  ============================================= -->
+  <section id="section-form">
+    <div class="form-left">
+      <h2>Start Your Journey</h2>
+      <p>Tell us where your land is. We'll tell you which pod belongs there.</p>
+    </div>
+    <div class="form-right">
+      <form id="inquiry-form" novalidate>
+        <div class="form-group">
+          <label for="full-name">Full Name</label>
+          <input type="text" id="full-name" name="full_name" placeholder="Your name" autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="mobile">Mobile Number</label>
+          <input type="tel" id="mobile" name="mobile" placeholder="+91 00000 00000" autocomplete="tel" />
+        </div>
+        <button type="submit" class="form-submit">Begin Your Journey</button>
+        <a href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener noreferrer" class="whatsapp-link">
+          Or chat with us on WhatsApp →
+        </a>
+        <div class="form-success" id="form-success">We'll be in touch. 🌿</div>
+      </form>
+    </div>
+  </section>
+
+  <!-- =============================================
+       FOOTER
+  ============================================= -->
+  <footer>
+    <span>© 2025 Boho Pods. Crafted by SlaqAI.</span>
+    <a href="#" aria-label="Instagram">
+      <svg class="footer-ig-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+      </svg>
+    </a>
+  </footer>
+
+  <!-- =============================================
+       JAVASCRIPT
+  ============================================= -->
+  <script>
+    // ─── Custom Cursor ───────────────────────────
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+    document.addEventListener('mouseleave', () => {
+      cursor.style.opacity = '0';
+    });
+    document.addEventListener('mouseenter', () => {
+      cursor.style.opacity = '1';
+    });
+
+    // ─── Scroll-Jacked Video ─────────────────────
+    const video = document.getElementById('hero-video');
+    const wrapper = document.getElementById('video-scroll-wrapper');
+    const progressBar = document.getElementById('scroll-progress');
+
+    const texts = {
+      1: { el: document.getElementById('text-1'), fadeIn: 0.08, fadeOut: 0.18 },
+      2: { el: document.getElementById('text-2'), fadeIn: 0.20, fadeOut: 0.32 },
+      3: { el: document.getElementById('text-3'), fadeIn: 0.38, fadeOut: 0.50 },
+      4: { el: document.getElementById('text-4'), fadeIn: 0.55, fadeOut: 0.67 },
+      5: { el: document.getElementById('text-5'), fadeIn: 0.72, fadeOut: 0.85 },
+    };
+
+    let videoDuration = 0;
+    let targetTime = 0;
+    let lastAppliedTime = -1;
+    // Minimum time delta before issuing a new seek (~1 frame at 30fps).
+    // Below this the decoder would fire for no visible change.
+    const MIN_SEEK_DELTA = 1 / 30;
+
+    video.addEventListener('loadedmetadata', () => { videoDuration = video.duration; });
+    video.addEventListener('canplay', () => { if (!videoDuration) videoDuration = video.duration; });
+
+    function getScrollProgress() {
+      const wrapperRect = wrapper.getBoundingClientRect();
+      const wrapperHeight = wrapper.offsetHeight;
+      const scrolledPast = -wrapperRect.top;
+      const maxScroll = wrapperHeight - window.innerHeight;
+      return Math.max(0, Math.min(1, scrolledPast / maxScroll));
+    }
+
+    function getTextOpacity(progress, fadeIn, fadeOut) {
+      const dur = 0.04;
+      if (progress < fadeIn) return 0;
+      if (progress < fadeIn + dur) return (progress - fadeIn) / dur;
+      if (progress < fadeOut) return 1;
+      if (progress < fadeOut + dur) return 1 - (progress - fadeOut) / dur;
+      return 0;
+    }
+
+    // Scroll handler: ONLY updates cheap UI (progress bar + text).
+    // Video seeking is handled separately in the rAF loop below.
+    function onScroll() {
+      const progress = getScrollProgress();
+
+      if (videoDuration > 0) {
+        targetTime = progress * videoDuration;
+      }
+
+      progressBar.style.height = (progress * 100) + '%';
+
+      for (const key in texts) {
+        const t = texts[key];
+        t.el.style.opacity = getTextOpacity(progress, t.fadeIn, t.fadeOut);
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Dedicated rAF loop for video seeks — completely decoupled from
+    // scroll event frequency. Only seeks when targetTime has moved by
+    // at least one frame, preventing decoder saturation.
+    function videoLoop() {
+      if (videoDuration > 0) {
+        const delta = Math.abs(targetTime - lastAppliedTime);
+        if (delta >= MIN_SEEK_DELTA && video.readyState >= 2) {
+          lastAppliedTime = targetTime;
+          if (typeof video.fastSeek === 'function') {
+            video.fastSeek(targetTime);
+          } else {
+            video.currentTime = targetTime;
+          }
+        }
+      }
+      requestAnimationFrame(videoLoop);
+    }
+    videoLoop();
+
+    // ─── IntersectionObserver for Scroll Reveals ──
+
+    // Isometric image reveal
+    const isoImage = document.getElementById('iso-image');
+    const isoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          isoImage.classList.add('revealed');
+          isoObserver.unobserve(isoImage);
+        }
+      });
+    }, { threshold: 0.2 });
+    isoObserver.observe(isoImage);
+
+    // Pod cards stagger reveal
+    const cards = [
+      { el: document.getElementById('card-1'), delay: 0 },
+      { el: document.getElementById('card-2'), delay: 150 },
+      { el: document.getElementById('card-3'), delay: 300 },
+    ];
+
+    const cardsRow = document.querySelector('.cards-row');
+    const cardsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          cards.forEach(({ el, delay }) => {
+            setTimeout(() => {
+              el.classList.add('revealed');
+            }, delay);
+          });
+          cardsObserver.unobserve(cardsRow);
+        }
+      });
+    }, { threshold: 0.1 });
+    cardsObserver.observe(cardsRow);
+
+    // ─── Inquiry Form ─────────────────────────────
+    const form = document.getElementById('inquiry-form');
+    const successMsg = document.getElementById('form-success');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('full-name').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+
+      if (!name || !mobile) return;
+
+      // Hide form fields, show success
+      form.querySelectorAll('.form-group, .form-submit, .whatsapp-link').forEach(el => {
+        el.style.display = 'none';
+      });
+
+      successMsg.classList.add('visible');
+    });
+
+    // ─── Initial UI sync ──────────────────────────
+    onScroll(); // sync progress bar + text on load
+  </script>
+</body>
+</html>
