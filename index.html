@@ -626,33 +626,6 @@
       }
     }
 
-    /* =============================================
-       VIDEO LOADER OVERLAY
-    ============================================= */
-    #video-loader {
-      position: absolute;
-      inset: 0;
-      background: var(--color-bg);
-      z-index: 10;
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-start;
-      padding: 0 60px 48px;
-      transition: opacity 0.8s ease;
-      pointer-events: none;
-    }
-
-    #video-loader.hidden {
-      opacity: 0;
-    }
-
-    #video-loader-bar {
-      width: 0%;
-      height: 1px;
-      background: var(--color-gold);
-      transition: width 0.3s ease;
-      max-width: 200px;
-    }
   </style>
 </head>
 <body>
@@ -668,20 +641,15 @@
   ============================================= -->
   <div id="video-scroll-wrapper">
     <div id="video-sticky">
-      <!-- src set via JS so it doesn't block initial page render -->
       <video
         id="hero-video"
+        src="bohopods-story-final.mp4"
         muted
         playsinline
-        preload="none"
+        preload="metadata"
         poster="bohopods-exterior-mountain-sunset-terrace-outdoor-seating.png"
       ></video>
       <div id="video-overlay"></div>
-
-      <!-- Loading overlay — fades out once video can play -->
-      <div id="video-loader">
-        <div id="video-loader-bar"></div>
-      </div>
 
       <!-- Scroll Text Lines -->
       <div class="scroll-text top" id="text-1">
@@ -848,8 +816,6 @@
     const video = document.getElementById('hero-video');
     const wrapper = document.getElementById('video-scroll-wrapper');
     const progressBar = document.getElementById('scroll-progress');
-    const loader = document.getElementById('video-loader');
-    const loaderBar = document.getElementById('video-loader-bar');
 
     const texts = {
       1: { el: document.getElementById('text-1'), fadeIn: 0.08, fadeOut: 0.18 },
@@ -864,39 +830,15 @@
     let lastAppliedTime = -1;
     const MIN_SEEK_DELTA = 1 / 30;
 
-    // Assign src via JS — keeps it out of the HTML parser so the page
-    // renders and becomes interactive before any video bytes are fetched.
-    video.src = 'bohopods-story-final.mp4';
-    video.load();
-
-    // Always keep the video paused — currentTime is the only control.
-    function forceHold() { if (!video.paused) video.pause(); }
-    video.addEventListener('play', forceHold);
-    video.addEventListener('playing', forceHold);
-
+    // preload="metadata" — browser fetches only duration + dimensions on
+    // load (a few KB), never the full file. The poster image covers the
+    // hero until the first scroll seek pulls the needed frames.
     video.addEventListener('loadedmetadata', () => {
       videoDuration = video.duration;
-      video.pause();
     });
 
-    // Animate loader bar using the video's buffered progress
-    video.addEventListener('progress', () => {
-      if (video.buffered.length > 0 && videoDuration > 0) {
-        const pct = (video.buffered.end(video.buffered.length - 1) / videoDuration) * 100;
-        loaderBar.style.width = Math.min(pct, 100) + '%';
-      }
-    });
-
-    // Hide loader once the video can play through without stalling
     video.addEventListener('canplay', () => {
-      video.pause();
-      if (!videoDuration) videoDuration = video.duration;
-      loaderBar.style.width = '100%';
-      setTimeout(() => {
-        loader.classList.add('hidden');
-        // Remove from DOM after fade so it can't block pointer events
-        setTimeout(() => loader.remove(), 900);
-      }, 200);
+      if (!videoDuration && video.duration) videoDuration = video.duration;
     });
 
     function getScrollProgress() {
