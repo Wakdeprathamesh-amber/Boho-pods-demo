@@ -5,18 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Boho Pods — Prefab Luxury Glamping</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
   <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.23/dist/lenis.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://unpkg.com/lenis@1.3.23/dist/lenis.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
     :root {
       --bg: #080806;
       --cream: #f2ece0;
       --gold: #c9a96e;
-      --serif: 'Cormorant Garant', serif;
+      --serif: 'Cormorant Garamond', serif;
       --sans: 'DM Sans', sans-serif;
     }
 
@@ -26,9 +30,9 @@
       background: var(--bg);
       color: var(--cream);
       overflow-x: hidden;
-      cursor: none;
       font-family: var(--sans);
     }
+    body.custom-cursor { cursor: none; }
 
     /* ─── CURSOR ─── */
     #cursor {
@@ -164,7 +168,7 @@
       overflow: hidden; border-radius: 2px;
       position: relative; flex-shrink: 0;
       border: 1px solid rgba(201,169,110,0.12);
-      background: #0f0f0d; cursor: none;
+      background: #0f0f0d;
     }
     .card-image-wrap { height: 75%; overflow: hidden; }
     .card-image {
@@ -335,7 +339,7 @@
     /* base card */
     .ac {
       position: relative; overflow: hidden;
-      border-radius: 0; cursor: none; flex-shrink: 0;
+      border-radius: 0; flex-shrink: 0;
     }
     .ac-img {
       width: 100%; height: 100%; display: block;
@@ -469,7 +473,7 @@
       background: transparent; color: var(--cream);
       font-family: var(--sans); font-size: 16px;
       padding: 16px 0; width: 100%; outline: none;
-      transition: border-color 0.3s; cursor: none;
+      transition: border-color 0.3s;
     }
     .form-group input:focus { border-bottom-color: var(--gold); }
     .form-group input::placeholder { color: rgba(242,236,224,0.35); }
@@ -477,7 +481,7 @@
       width: 100%; height: 56px; background: var(--gold);
       color: #080806; font-family: var(--sans); font-size: 13px;
       letter-spacing: 3px; text-transform: uppercase; font-weight: 600;
-      border: none; cursor: none;
+      border: none;
       transition: opacity 0.3s; margin-bottom: 20px; display: block;
     }
     #submit-btn:hover { opacity: 0.85; }
@@ -485,7 +489,7 @@
       text-align: center; font-family: var(--sans);
       font-size: 13px; color: var(--gold);
     }
-    .wa-line a { color: var(--gold); text-decoration: none; cursor: none; }
+    .wa-line a { color: var(--gold); text-decoration: none; }
 
     /* ─── FOOTER ─── */
     footer {
@@ -514,13 +518,32 @@
     }
     .footer-right a {
       color: rgba(242,236,224,0.3); text-decoration: none;
-      cursor: none; display: block; transition: color 0.3s;
+      display: block; transition: color 0.3s;
     }
     .footer-right a:hover { color: var(--gold); }
+
+    body.custom-cursor a,
+    body.custom-cursor button,
+    body.custom-cursor .gallery-card,
+    body.custom-cursor .ac,
+    body.custom-cursor .form-group input {
+      cursor: none;
+    }
 
     /* ─── WORD SPLIT ─── */
     .w-wrap { overflow: hidden; display: inline-block; vertical-align: bottom; }
     .w-inner { display: inline-block; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 900px) {
@@ -532,6 +555,18 @@
       .par-text { font-size: 52px; }
       .hl { font-size: 52px !important; }
       .gallery-card { width: 300px; height: 430px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html:focus-within { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      #cursor, #cursor-follower, #cursor-label, #loader, #scroll-indicator, #progress-bar {
+        display: none !important;
+      }
     }
   </style>
 </head>
@@ -555,7 +590,9 @@
   ══════════════════════════════════════════ -->
   <section id="hero-wrapper">
     <div id="hero-sticky">
-      <video id="hero-video" autoplay muted loop playsinline preload="auto">
+      <video id="hero-video" autoplay muted loop playsinline preload="metadata" poster="public/bohopods-aerial-exterior-hilltop-terraced-garden-misty-valley.webp">
+        <source src="public/bohopods-story-final-optimized.webm" type="video/webm">
+        <source src="public/bohopods-story-final-optimized.mp4" type="video/mp4">
         <source src="public/bohopods-story-final.mp4" type="video/mp4">
       </video>
       <div id="hero-overlay"></div>
@@ -616,8 +653,12 @@
 
         <div class="gallery-card">
           <div class="card-image-wrap">
-            <img class="card-image" loading="lazy"
-              src="public/bohopods-interior-bedroom-mountain-valley-view-reading-chair.png" alt="">
+            <picture>
+              <source srcset="public/bohopods-interior-bedroom-mountain-valley-view-reading-chair-640.avif 640w, public/bohopods-interior-bedroom-mountain-valley-view-reading-chair-960.avif 960w, public/bohopods-interior-bedroom-mountain-valley-view-reading-chair-1280.avif 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/avif">
+              <source srcset="public/bohopods-interior-bedroom-mountain-valley-view-reading-chair-640.webp 640w, public/bohopods-interior-bedroom-mountain-valley-view-reading-chair-960.webp 960w, public/bohopods-interior-bedroom-mountain-valley-view-reading-chair-1280.webp 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/webp">
+              <img class="card-image" loading="lazy"
+                src="public/bohopods-interior-bedroom-mountain-valley-view-reading-chair.png" alt="Boho pod interior bedroom with valley view and reading chair">
+            </picture>
           </div>
           <div class="card-body">
             <div>
@@ -631,8 +672,12 @@
 
         <div class="gallery-card">
           <div class="card-image-wrap">
-            <img class="card-image" loading="lazy"
-              src="public/bohopods-exterior-mountain-sunset-terrace-outdoor-seating.png" alt="">
+            <picture>
+              <source srcset="public/bohopods-exterior-mountain-sunset-terrace-outdoor-seating-640.avif 640w, public/bohopods-exterior-mountain-sunset-terrace-outdoor-seating-960.avif 960w, public/bohopods-exterior-mountain-sunset-terrace-outdoor-seating-1280.avif 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/avif">
+              <source srcset="public/bohopods-exterior-mountain-sunset-terrace-outdoor-seating-640.webp 640w, public/bohopods-exterior-mountain-sunset-terrace-outdoor-seating-960.webp 960w, public/bohopods-exterior-mountain-sunset-terrace-outdoor-seating-1280.webp 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/webp">
+              <img class="card-image" loading="lazy"
+                src="public/bohopods-exterior-mountain-sunset-terrace-outdoor-seating.png" alt="Boho pod exterior terrace at mountain sunset with outdoor seating">
+            </picture>
           </div>
           <div class="card-body">
             <div>
@@ -646,8 +691,12 @@
 
         <div class="gallery-card">
           <div class="card-image-wrap">
-            <img class="card-image" loading="lazy"
-              src="public/bohopods-interior-bedroom-curved-glass-misty-mountain-valley.png" alt="">
+            <picture>
+              <source srcset="public/bohopods-interior-bedroom-curved-glass-misty-mountain-valley-640.avif 640w, public/bohopods-interior-bedroom-curved-glass-misty-mountain-valley-960.avif 960w, public/bohopods-interior-bedroom-curved-glass-misty-mountain-valley-1280.avif 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/avif">
+              <source srcset="public/bohopods-interior-bedroom-curved-glass-misty-mountain-valley-640.webp 640w, public/bohopods-interior-bedroom-curved-glass-misty-mountain-valley-960.webp 960w, public/bohopods-interior-bedroom-curved-glass-misty-mountain-valley-1280.webp 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/webp">
+              <img class="card-image" loading="lazy"
+                src="public/bohopods-interior-bedroom-curved-glass-misty-mountain-valley.png" alt="Curved-glass bedroom interior overlooking a misty mountain valley">
+            </picture>
           </div>
           <div class="card-body">
             <div>
@@ -661,8 +710,12 @@
 
         <div class="gallery-card">
           <div class="card-image-wrap">
-            <img class="card-image" loading="lazy"
-              src="public/bohopods-exterior-forest-stone-firepit-misty-mountains.png" alt="">
+            <picture>
+              <source srcset="public/bohopods-exterior-forest-stone-firepit-misty-mountains-640.avif 640w, public/bohopods-exterior-forest-stone-firepit-misty-mountains-960.avif 960w, public/bohopods-exterior-forest-stone-firepit-misty-mountains-1280.avif 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/avif">
+              <source srcset="public/bohopods-exterior-forest-stone-firepit-misty-mountains-640.webp 640w, public/bohopods-exterior-forest-stone-firepit-misty-mountains-960.webp 960w, public/bohopods-exterior-forest-stone-firepit-misty-mountains-1280.webp 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/webp">
+              <img class="card-image" loading="lazy"
+                src="public/bohopods-exterior-forest-stone-firepit-misty-mountains.png" alt="Forest-side pod exterior with stone firepit and misty mountains">
+            </picture>
           </div>
           <div class="card-body">
             <div>
@@ -676,8 +729,12 @@
 
         <div class="gallery-card">
           <div class="card-image-wrap">
-            <img class="card-image" loading="lazy"
-              src="public/bohopods-aerial-exterior-beach-tropical-firepit-lily-pond.png" alt="">
+            <picture>
+              <source srcset="public/bohopods-aerial-exterior-beach-tropical-firepit-lily-pond-640.avif 640w, public/bohopods-aerial-exterior-beach-tropical-firepit-lily-pond-960.avif 960w, public/bohopods-aerial-exterior-beach-tropical-firepit-lily-pond-1280.avif 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/avif">
+              <source srcset="public/bohopods-aerial-exterior-beach-tropical-firepit-lily-pond-640.webp 640w, public/bohopods-aerial-exterior-beach-tropical-firepit-lily-pond-960.webp 960w, public/bohopods-aerial-exterior-beach-tropical-firepit-lily-pond-1280.webp 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/webp">
+              <img class="card-image" loading="lazy"
+                src="public/bohopods-aerial-exterior-beach-tropical-firepit-lily-pond.png" alt="Aerial coastal pod exterior with tropical landscaping and firepit">
+            </picture>
           </div>
           <div class="card-body">
             <div>
@@ -691,8 +748,12 @@
 
         <div class="gallery-card">
           <div class="card-image-wrap">
-            <img class="card-image" loading="lazy"
-              src="public/bohopods-deck-beachfront-lounge-palm-sunset.png" alt="">
+            <picture>
+              <source srcset="public/bohopods-deck-beachfront-lounge-palm-sunset-640.avif 640w, public/bohopods-deck-beachfront-lounge-palm-sunset-960.avif 960w, public/bohopods-deck-beachfront-lounge-palm-sunset-1280.avif 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/avif">
+              <source srcset="public/bohopods-deck-beachfront-lounge-palm-sunset-640.webp 640w, public/bohopods-deck-beachfront-lounge-palm-sunset-960.webp 960w, public/bohopods-deck-beachfront-lounge-palm-sunset-1280.webp 1280w" sizes="(max-width: 900px) 300px, 420px" type="image/webp">
+              <img class="card-image" loading="lazy"
+                src="public/bohopods-deck-beachfront-lounge-palm-sunset.png" alt="Beachfront lounge deck beside a pod at sunset">
+            </picture>
           </div>
           <div class="card-body">
             <div>
@@ -746,7 +807,11 @@
 
       <!-- RIGHT: scroll-scrubbed video -->
       <div id="iso-video-container">
-        <video id="iso-video" src="public/bohopods-iso-animation.mp4" muted playsinline preload="auto"></video>
+        <video id="iso-video" muted playsinline preload="metadata" poster="public/bohopods-3d-isometric-floorplan-pod-layout.webp">
+          <source src="public/bohopods-iso-animation-optimized.webm" type="video/webm">
+          <source src="public/bohopods-iso-animation-optimized.mp4" type="video/mp4">
+          <source src="public/bohopods-iso-animation.mp4" type="video/mp4">
+        </video>
       </div>
 
     </div>
@@ -757,19 +822,19 @@
   ══════════════════════════════════════════ -->
   <div class="par-panel" id="pp1">
     <div class="par-bg" id="pb1"
-      style="background-image:url('public/bohopods-aerial-exterior-hilltop-terraced-garden-misty-valley.png')"></div>
+      style="background-image:image-set(url('public/bohopods-aerial-exterior-hilltop-terraced-garden-misty-valley.avif') type('image/avif'), url('public/bohopods-aerial-exterior-hilltop-terraced-garden-misty-valley.webp') type('image/webp'), url('public/bohopods-aerial-exterior-hilltop-terraced-garden-misty-valley.png') type('image/png'))"></div>
     <div class="par-overlay"></div>
     <p class="par-text" id="pt1">Built for the view.</p>
   </div>
   <div class="par-panel" id="pp2">
     <div class="par-bg" id="pb2"
-      style="background-image:url('public/bohopods-exterior-zen-rock-garden-mountain-backdrop.png')"></div>
+      style="background-image:image-set(url('public/bohopods-exterior-zen-rock-garden-mountain-backdrop.avif') type('image/avif'), url('public/bohopods-exterior-zen-rock-garden-mountain-backdrop.webp') type('image/webp'), url('public/bohopods-exterior-zen-rock-garden-mountain-backdrop.png') type('image/png'))"></div>
     <div class="par-overlay"></div>
     <p class="par-text" id="pt2">Engineered for the land.</p>
   </div>
   <div class="par-panel" id="pp3">
     <div class="par-bg" id="pb3"
-      style="background-image:url('public/bohopods-interior-bedroom-zen-garden-pendant-lights-white-bed.png')"></div>
+      style="background-image:image-set(url('public/bohopods-interior-bedroom-zen-garden-pendant-lights-white-bed.avif') type('image/avif'), url('public/bohopods-interior-bedroom-zen-garden-pendant-lights-white-bed.webp') type('image/webp'), url('public/bohopods-interior-bedroom-zen-garden-pendant-lights-white-bed.png') type('image/png'))"></div>
     <div class="par-overlay"></div>
     <p class="par-text" id="pt3">Designed for the moment.</p>
   </div>
@@ -796,8 +861,12 @@
       <div class="addons-row">
 
         <div class="ac" id="addon-1">
-          <img class="ac-img" loading="lazy"
-            src="public/bohopods-addon-firepit.png" alt="Fire Pit">
+          <picture>
+            <source srcset="public/bohopods-addon-firepit-640.avif 640w, public/bohopods-addon-firepit-960.avif 960w, public/bohopods-addon-firepit-1280.avif 1280w" sizes="(max-width: 900px) 100vw, 50vw" type="image/avif">
+            <source srcset="public/bohopods-addon-firepit-640.webp 640w, public/bohopods-addon-firepit-960.webp 960w, public/bohopods-addon-firepit-1280.webp 1280w" sizes="(max-width: 900px) 100vw, 50vw" type="image/webp">
+            <img class="ac-img" loading="lazy"
+              src="public/bohopods-addon-firepit.png" alt="Fire Pit">
+          </picture>
           <div class="ac-overlay"></div>
           <div class="ac-body">
             <span class="ac-num">01</span>
@@ -807,8 +876,12 @@
         </div>
 
         <div class="ac" id="addon-2">
-          <img class="ac-img" loading="lazy"
-            src="public/bohopods-addon-plungepool.png" alt="Plunge Pool">
+          <picture>
+            <source srcset="public/bohopods-addon-plungepool-640.avif 640w, public/bohopods-addon-plungepool-960.avif 960w, public/bohopods-addon-plungepool-1280.avif 1280w" sizes="(max-width: 900px) 100vw, 50vw" type="image/avif">
+            <source srcset="public/bohopods-addon-plungepool-640.webp 640w, public/bohopods-addon-plungepool-960.webp 960w, public/bohopods-addon-plungepool-1280.webp 1280w" sizes="(max-width: 900px) 100vw, 50vw" type="image/webp">
+            <img class="ac-img" loading="lazy"
+              src="public/bohopods-addon-plungepool.png" alt="Plunge Pool">
+          </picture>
           <div class="ac-overlay"></div>
           <div class="ac-body">
             <span class="ac-num">02</span>
@@ -823,8 +896,12 @@
       <div class="addons-row">
 
         <div class="ac" id="addon-3">
-          <img class="ac-img" loading="lazy"
-            src="public/bohopods-addon-darkpanel.png" alt="Dark Paneling">
+          <picture>
+            <source srcset="public/bohopods-addon-darkpanel-640.avif 640w, public/bohopods-addon-darkpanel-960.avif 960w, public/bohopods-addon-darkpanel-1280.avif 1280w" sizes="(max-width: 900px) 100vw, 50vw" type="image/avif">
+            <source srcset="public/bohopods-addon-darkpanel-640.webp 640w, public/bohopods-addon-darkpanel-960.webp 960w, public/bohopods-addon-darkpanel-1280.webp 1280w" sizes="(max-width: 900px) 100vw, 50vw" type="image/webp">
+            <img class="ac-img" loading="lazy"
+              src="public/bohopods-addon-darkpanel.png" alt="Dark Paneling">
+          </picture>
           <div class="ac-overlay"></div>
           <div class="ac-body">
             <span class="ac-num">03</span>
@@ -842,8 +919,12 @@
         </div>
 
         <div class="ac" id="addon-4">
-          <img class="ac-img" loading="lazy"
-            src="public/bohopods-addon-lightpanel.png" alt="Light Paneling">
+          <picture>
+            <source srcset="public/bohopods-addon-lightpanel-640.avif 640w, public/bohopods-addon-lightpanel-960.avif 960w, public/bohopods-addon-lightpanel-1280.avif 1280w" sizes="(max-width: 900px) 100vw, 50vw" type="image/avif">
+            <source srcset="public/bohopods-addon-lightpanel-640.webp 640w, public/bohopods-addon-lightpanel-960.webp 960w, public/bohopods-addon-lightpanel-1280.webp 1280w" sizes="(max-width: 900px) 100vw, 50vw" type="image/webp">
+            <img class="ac-img" loading="lazy"
+              src="public/bohopods-addon-lightpanel.png" alt="Light Paneling">
+          </picture>
           <div class="ac-overlay"></div>
           <div class="ac-body">
             <span class="ac-num">04</span>
@@ -875,10 +956,12 @@
       <div class="inq-form-wrap">
         <form id="inquiry-form">
           <div class="form-group">
-            <input type="text" placeholder="Full Name" required>
+            <label for="full-name" class="sr-only">Full Name</label>
+            <input id="full-name" name="fullName" type="text" placeholder="Full Name" autocomplete="name" required>
           </div>
           <div class="form-group">
-            <input type="tel" placeholder="Mobile Number" required>
+            <label for="mobile-number" class="sr-only">Mobile Number</label>
+            <input id="mobile-number" name="mobileNumber" type="tel" placeholder="Mobile Number" autocomplete="tel" inputmode="tel" required>
           </div>
           <button type="submit" id="submit-btn">REQUEST A CONSULTATION</button>
         </form>
@@ -909,10 +992,26 @@
   <script>
   gsap.registerPlugin(ScrollTrigger);
 
+  const siteEnv = {
+    prefersReducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    saveData: Boolean(navigator.connection && navigator.connection.saveData),
+    lowBandwidth: Boolean(
+      navigator.connection &&
+      typeof navigator.connection.effectiveType === 'string' &&
+      /(^|-)2g$/.test(navigator.connection.effectiveType)
+    ),
+    finePointer: window.matchMedia('(pointer: fine)').matches,
+    canHover: window.matchMedia('(hover: hover)').matches,
+  };
+  siteEnv.lightExperience = siteEnv.prefersReducedMotion || siteEnv.saveData || siteEnv.lowBandwidth;
+
   /* ─────────────────────────────────────────────
      CURSOR
   ───────────────────────────────────────────── */
   (function () {
+    if (!(siteEnv.finePointer && siteEnv.canHover) || siteEnv.prefersReducedMotion) return;
+
+    document.body.classList.add('custom-cursor');
     const dot = document.getElementById('cursor');
     const ring = document.getElementById('cursor-follower');
     let fx = -20, fy = -20, mx = -20, my = -20;
@@ -939,64 +1038,88 @@
      LOADER → initSite
   ───────────────────────────────────────────── */
   const loaderTL = gsap.timeline();
-  loaderTL
-    .to('#loader-text', { opacity: 1, duration: 0.8, ease: 'power2.out' })
-    .to('#loader-line', { width: 120, duration: 1.2, ease: 'power3.inOut' }, 0.1)
-    .to('#loader', { opacity: 0, duration: 0.6, ease: 'power2.inOut' }, '+=0.5')
-    .call(() => {
-      document.getElementById('loader').style.display = 'none';
-      initSite();
-    });
+  if (siteEnv.prefersReducedMotion) {
+    document.getElementById('loader').style.display = 'none';
+    initSite();
+  } else {
+    loaderTL
+      .to('#loader-text', { opacity: 1, duration: 0.8, ease: 'power2.out' })
+      .to('#loader-line', { width: 120, duration: 1.2, ease: 'power3.inOut' }, 0.1)
+      .to('#loader', { opacity: 0, duration: 0.6, ease: 'power2.inOut' }, '+=0.5')
+      .call(() => {
+        document.getElementById('loader').style.display = 'none';
+        initSite();
+      });
+  }
 
   /* ─────────────────────────────────────────────
      INIT
   ───────────────────────────────────────────── */
   function initSite() {
 
-    /* ── Lenis ── */
-    const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add(t => lenis.raf(t * 1000));
-    gsap.ticker.lagSmoothing(0);
+    const heroVideo = document.getElementById('hero-video');
+    const isoVideo = document.getElementById('iso-video');
+
+    if (siteEnv.lightExperience) {
+      heroVideo.pause();
+      heroVideo.removeAttribute('autoplay');
+      heroVideo.removeAttribute('loop');
+      heroVideo.currentTime = 0;
+      isoVideo.pause();
+      isoVideo.currentTime = 0;
+    } else {
+      /* ── Lenis ── */
+      const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(t => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
 
     /* ── Progress bar ── */
-    gsap.to('#progress-fill', {
-      scaleY: 1,
-      ease: 'none',
-      scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 0 }
-    });
+    if (!siteEnv.prefersReducedMotion) {
+      gsap.to('#progress-fill', {
+        scaleY: 1,
+        ease: 'none',
+        scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 0 }
+      });
+    }
 
     /* ── Scroll dot ── */
-    gsap.to('#scroll-dot', { y: 34, repeat: -1, duration: 1.2, ease: 'none' });
-    gsap.to('#scroll-indicator', {
-      opacity: 0,
-      scrollTrigger: { trigger: '#hero-wrapper', start: 'top top', end: '4% top', scrub: true }
-    });
+    if (!siteEnv.prefersReducedMotion) {
+      gsap.to('#scroll-dot', { y: 34, repeat: -1, duration: 1.2, ease: 'none' });
+      gsap.to('#scroll-indicator', {
+        opacity: 0,
+        scrollTrigger: { trigger: '#hero-wrapper', start: 'top top', end: '4% top', scrub: true }
+      });
+    }
 
     /* ───────────────────────────────────────────
        HERO — phase 1 entrance on load
     ─────────────────────────────────────────── */
     gsap.set('#phase1', { opacity: 1 });
-    gsap.from('#phase1 .hl', {
-      y: 60, opacity: 0, stagger: 0.18,
-      duration: 1, ease: 'power3.out', delay: 0.3
-    });
+    if (!siteEnv.prefersReducedMotion) {
+      gsap.from('#phase1 .hl', {
+        y: 60, opacity: 0, stagger: 0.18,
+        duration: 1, ease: 'power3.out', delay: 0.3
+      });
+    }
 
     /* ───────────────────────────────────────────
        HERO — master scroll timeline (600vh)
     ─────────────────────────────────────────── */
-    const heroTL = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#hero-wrapper',
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 1.5,
-        invalidateOnRefresh: true,
-      }
-    });
+    if (!siteEnv.lightExperience) {
+      const heroTL = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#hero-wrapper',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1.5,
+          invalidateOnRefresh: true,
+        }
+      });
 
     /* Timeline runs 0 → 10 (mapped to full 600vh scroll) */
-    heroTL
+      heroTL
       /* Phase 1 exit (0 → 1.6) */
       .to('#phase1 .hl', { y: -50, opacity: 0, stagger: 0.06, duration: 0.6, ease: 'power2.in' }, 1.0)
       .set('#phase1', { opacity: 0 }, 1.7)
@@ -1028,8 +1151,9 @@
       .set('#phase5',     { opacity: 0 }, 8.8)
 
       /* Explore label (8.8 → 10) */
-      .to('#hero-explore', { opacity: 1, duration: 0.3 }, 8.8)
-      .to('#hero-explore', { opacity: 0, duration: 0.3 }, 9.6);
+        .to('#hero-explore', { opacity: 1, duration: 0.3 }, 8.8)
+        .to('#hero-explore', { opacity: 0, duration: 0.3 }, 9.6);
+    }
 
     /* ───────────────────────────────────────────
        GALLERY — horizontal scroll
@@ -1040,23 +1164,24 @@
       return -(track.scrollWidth - window.innerWidth);
     }
 
-    gsap.to(track, {
-      x: getGalleryX,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '#gallery-wrapper',
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 1.5,
-        invalidateOnRefresh: true,
-        onRefresh: self => self.animation.vars.x = getGalleryX(),
-      }
-    });
+    if (!siteEnv.lightExperience) {
+      gsap.to(track, {
+        x: getGalleryX,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#gallery-wrapper',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1.5,
+          invalidateOnRefresh: true,
+          onRefresh: self => self.animation.vars.x = getGalleryX(),
+        }
+      });
+    }
 
     /* ───────────────────────────────────────────
        S3 — SCROLL-SCRUBBED VIDEO + TEXT STATES
     ─────────────────────────────────────────── */
-    const isoVideo    = document.getElementById('iso-video');
     const archWrapper = document.getElementById('arch-section-wrapper');
 
     isoVideo.pause();
@@ -1078,10 +1203,12 @@
       });
     }
 
-    if (isoVideo.readyState >= 1) {
-      initArchScrollVideo();
-    } else {
-      isoVideo.addEventListener('loadedmetadata', initArchScrollVideo, { once: true });
+    if (!siteEnv.lightExperience) {
+      if (isoVideo.readyState >= 1) {
+        initArchScrollVideo();
+      } else {
+        isoVideo.addEventListener('loadedmetadata', initArchScrollVideo, { once: true });
+      }
     }
 
     /* imperative text-state swap */
@@ -1100,17 +1227,19 @@
       currentTextState = newState;
     }
 
-    ScrollTrigger.create({
-      trigger: archWrapper,
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: true,
-      onUpdate(self) {
-        const p = self.progress;
-        const target = p < 0.33 ? 0 : p < 0.66 ? 1 : 2;
-        switchTextState(target);
-      }
-    });
+    if (!siteEnv.lightExperience) {
+      ScrollTrigger.create({
+        trigger: archWrapper,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: true,
+        onUpdate(self) {
+          const p = self.progress;
+          const target = p < 0.33 ? 0 : p < 0.66 ? 1 : 2;
+          switchTextState(target);
+        }
+      });
+    }
 
     /* ───────────────────────────────────────────
        PARALLAX PANELS
@@ -1120,24 +1249,30 @@
       const txt = document.getElementById('pt' + i);
       const pan = document.getElementById('pp' + i);
 
-      gsap.fromTo(bg,
-        { yPercent: -12 },
-        {
-          yPercent: 12,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: pan, start: 'top bottom', end: 'bottom top', scrub: true
+      if (!siteEnv.lightExperience) {
+        gsap.fromTo(bg,
+          { yPercent: -12 },
+          {
+            yPercent: 12,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: pan, start: 'top bottom', end: 'bottom top', scrub: true
+            }
           }
-        }
-      );
+        );
+      }
 
       gsap.set(txt, { opacity: 0, y: 32 });
-      ScrollTrigger.create({
-        trigger: pan, start: 'top 65%', once: true,
-        onEnter() {
-          gsap.to(txt, { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out' });
-        }
-      });
+      if (!siteEnv.prefersReducedMotion) {
+        ScrollTrigger.create({
+          trigger: pan, start: 'top 65%', once: true,
+          onEnter() {
+            gsap.to(txt, { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out' });
+          }
+        });
+      } else {
+        gsap.set(txt, { opacity: 1, y: 0 });
+      }
     });
 
     /* ───────────────────────────────────────────

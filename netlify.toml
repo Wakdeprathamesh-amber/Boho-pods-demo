@@ -9,12 +9,28 @@
   force = true
 
 [[headers]]
-  for = "/*.mp4"
+  for = "/public/*.mp4"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
     Accept-Ranges = "bytes"
 
 [[headers]]
-  for = "/*.png"
+  for = "/public/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/public/*.webm"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Accept-Ranges = "bytes"
+
+[[headers]]
+  for = "/public/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/public/*.avif"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
